@@ -75,6 +75,10 @@ def validity(s):
             print('invalid chemistry')
             return 0
     return 1
+
+def molecular_weight(s):
+    mol_wt = Descriptors.MolWt(Chem.MolFromSmiles(s))
+    return mol_wt
     
 if __name__ == "__main__":
     print(round(penalized_logp('ClC1=CC=C2C(C=C(C(C)=O)C(C(NC3=CC(NC(NC4=CC(C5=C(C)C=CC=C5)=CC=C4)=O)=CC=C3)=O)=C2)=C1'), 2), 5.30)
