@@ -5,7 +5,6 @@ from rdkit.Chem import Descriptors
 import rdkit.Chem.QED as QED
 import networkx as nx
 import props.sascorer as sascorer
-import props.drd2_scorer as drd2_scorer
 
 def similarity(a, b):
     if a is None or b is None: 
@@ -19,11 +18,6 @@ def similarity(a, b):
     fp2 = AllChem.GetMorganFingerprintAsBitVect(bmol, 2, nBits=2048, useChirality=False)
     return DataStructs.TanimotoSimilarity(fp1, fp2) 
 
-def drd2(s):
-    if s is None: return 0.0
-    if Chem.MolFromSmiles(s) is None:
-        return 0.0
-    return drd2_scorer.get_score(s)
 
 def qed(s):
     if s is None: return 0.0
