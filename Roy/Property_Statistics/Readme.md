@@ -1,3 +1,4 @@
+# Benchmarking Metrics
 All the code for evaluating the  statistics required to benchmark the model:
 
 ## Sampling Statistics
@@ -21,6 +22,6 @@ We would like these to be as low as possible
 
 We would like these to be as high as possible
 
--**Structural Nearest Neighbour**: Defines how similar the ECFP  fingerprints of the generated molecules are to the input molecules
--**Fragment Similarity**: How similar the fragments (defined by the BRICS algorithm) of the output molecules are to the input molecules
--**Scaffold Similarity**: How similar the scaffolds of the output molecules are to the input molecules
+- **Structural Nearest Neighbour**: Defines how similar the ECFP  fingerprints of the generated molecules are to the input molecules
+- **Fragment Similarity**: How similar the fragments (defined by the BRICS algorithm) of the output molecules are to the input molecules
+- **Scaffold Similarity**: How similar the scaffolds of the output molecules are to the input molecules
