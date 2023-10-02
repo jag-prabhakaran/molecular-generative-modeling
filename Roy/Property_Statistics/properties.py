@@ -4,7 +4,7 @@ from rdkit.Chem import AllChem
 from rdkit.Chem import Descriptors
 import rdkit.Chem.QED as QED
 import networkx as nx
-import props.sascorer as sascorer
+import sascorer
 
 def similarity(a, b):
     if a is None or b is None: 
