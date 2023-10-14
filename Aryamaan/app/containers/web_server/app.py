@@ -1,21 +1,36 @@
 import hashlib
+import logging
+
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import TEXT, REAL, UUID, ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import select
-from rdkit import Chem
-from rdkit.Chem import Crippen
-from rdkit.Chem import AllChem, Draw
-from rdkit import DataStructs
-from scaffold_constrained_model import scaffold_constrained_RNN
-from data_structs import Vocabulary, Experience
-from utils import Variable, seq_to_smiles, fraction_valid_smiles, unique
-import torch
 import os
 from dotenv import load_dotenv
+from enum import StrEnum
+from logging.config import dictConfig
+import requests
 
 load_dotenv()
+
+
+dictConfig({
+    'version': 1,
+    'formatters': {'default': {
+        'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
+    }},
+    'handlers': {'wsgi': {
+        'class': 'logging.StreamHandler',
+        'formatter': 'default'
+    }},
+    'root': {
+        'level': 'DEBUG',
+        'handlers': ['wsgi']
+    }
+})
+
+logger = logging.getLogger(__name__)
 
 # Create a Flask web application
 app = Flask(__name__)
@@ -27,11 +42,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable tracking modific
 
 # Create a SQLAlchemy database object
 db = SQLAlchemy(app)
-
-voc = Vocabulary(init_from_file="data/DistributionLearningBenchmark/Voc")
-Agent = scaffold_constrained_RNN(voc)
-Agent.rnn.load_state_dict(torch.load('data/DistributionLearningBenchmark/Prior_ChEMBL_randomized.ckpt', map_location=lambda storage, loc: storage))
-print("Model loaded")
 
 
 # Define models for the tables in the database
@@ -75,6 +85,12 @@ class ModelInput(db.Model):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
+class ModelType(StrEnum):
+    scaffold_constrained = "scaffold_constrained"
+    vae_gan = "vae_gan"
+    # TODO: placeholder for last model type
+
+
 # Define a route to insert data into the database using a POST request
 @app.route('/insert_model_input', methods=['POST'])
 def insert_data():
@@ -93,20 +109,24 @@ def insert_data():
             "id": id,
         })), 200
 
+
 @app.route('/list_model_inputs', methods=['GET'])
 def list_model_inputs():
     results = db.session.scalars(select(ModelInput))
     return [x.as_dict() for x in results.all()]
+
 
 @app.route('/list_model_inferences', methods=['GET'])
 def list_model_inferences():
     results = db.session.scalars(select(ModelInference))
     return [x.as_dict() for x in results.all()]
 
+
 @app.route('/list_generated_molecules', methods=['GET'])
 def list_generated_molecules():
     results = db.session.scalars(select(GeneratedMolecule))
     return [x.as_dict() for x in results.all()]
+
 
 @app.route('/insert_model_inference', methods=['POST'])
 def insert_model_inference():
@@ -121,6 +141,7 @@ def insert_model_inference():
         db.session.commit()
         return jsonify("Data inserted successfully"), 200
 
+
 @app.route('/insert_generated_molecule', methods=['POST'])
 def insert_generated_molecule():
     data = request.get_json()
@@ -134,26 +155,29 @@ def insert_generated_molecule():
         db.session.commit()
         return jsonify("Data inserted successfully"), 200
 
+
 @app.route('/run_model_inference', methods=['POST'])
 def run_model_inference():
     data = request.get_json()
-    if "scaffold_smile" not in data or "log_p_min" not in data or "log_p_max" not in data:
-        return jsonify("Bad Request! Malformed data."), 400
+    if "model_type" not in data:
+        return jsonify("Bad Request! Malformed data. Are you missing the model_type parameter?"), 400
+    if data["model_type"] == ModelType.scaffold_constrained:
+        logger.log(logging.INFO, "Running scaffold constrained model inference")
+        payload = data['payload']
+        if "payload" not in data:
+            return jsonify("Bad Request! Malformed data. Are you missing the payload parameter?"), 400
+        else:
+            if "scaffold_smile" not in payload or "log_p_min" not in payload or "log_p_max" not in payload:
+                return jsonify("Bad Request! Malformed data. Are you missing the scaffold_smile, log_p_min, or log_p_max parameters in your payload?"), 400
+            else:
+                response = requests.post("http://scaffold_constrained:5000/run_model_inference", json=payload)
+                return response.json(), response.status_code
+    elif data["model_type"] == ModelType.vae_gan:
+        logger.log(logging.INFO, "Running vae gan model inference")
+        response = requests.get("http://vae_gan:5000/generate_molecules")
+        return response.json(), response.status_code
     else:
-        seqs, agent_likelihood, entropy = Agent.sample(pattern=data["scaffold_smile"], batch_size=50)
-        smiles = seq_to_smiles(seqs, voc)
-        mols = []
-        for smile in smiles:
-            mol = Chem.MolFromSmiles(smile)
-            if mol:
-                mols.append(mol)
-        mol_smiles = [(Chem.MolToSmiles(mol), Crippen.MolLogP(mol)) for mol in mols]
-        filtered_mol_smiles = [x for x in mol_smiles if data["log_p_min"] <= x[1] <= data["log_p_max"]]
-        return jsonify({
-            "mol_smiles": mol_smiles,
-            "filtered_mol_smiles": filtered_mol_smiles
-        }), 200
-
+        return jsonify("Bad Request! Malformed Data. Unknown model_type."), 400
 
 # Run the application on a specific host and port
 if __name__ == '__main__':

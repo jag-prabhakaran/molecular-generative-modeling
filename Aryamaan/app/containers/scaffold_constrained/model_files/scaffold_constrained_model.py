@@ -4,9 +4,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from data_structs import tokenize
-from utils import Variable, replace_halogen, tokenize_custom
-from model import MultiGRU
+from .data_structs import tokenize
+from .utils import Variable, replace_halogen, tokenize_custom
+from .model import MultiGRU
 import re
 import random
 import numpy as np
