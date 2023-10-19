@@ -11,7 +11,8 @@
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
+
 
 # Thumbnails
 ._*
@@ -319,5 +320,12 @@ poetry.toml
 
 # LSP config files
 pyrightconfig.json
+
+#hgraph2graph
+
+Roy/hgraph2graph/train_qed
+Roy/hgraph2graph/train_processed
+Roy/hgraph2graph/train_short
+Roy/hgraph2graph/train_logp06
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,python,pycharm,dotenv
