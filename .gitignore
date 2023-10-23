@@ -328,5 +328,4 @@ Roy/hgraph/train_processed
 Roy/hgraph/train_short
 Roy/hgraph/train_logp06
 Roy/hgraph/ckpt
-Roy/hgraph/data
 # End of https://www.toptal.com/developers/gitignore/api/macos,python,pycharm,dotenv
