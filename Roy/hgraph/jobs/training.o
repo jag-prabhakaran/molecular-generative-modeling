@@ -1,0 +1,2 @@
+Namespace(anneal_rate=0.9, atom_vocab=<hgraph.vocab.Vocab object at 0x7f878d6b4a90>, batch_size=32, beta=0.3, clip_norm=20.0, cond_size=4, conditional=False, depthG=20, depthT=20, diterG=3, diterT=1, dropout=0.0, embed_size=270, epoch=12, hidden_size=270, latent_size=4, load_epoch=-1, lr=0.001, print_iter=50, rnn_type='LSTM', save_dir='ckpt/translation', save_iter=-1, train='./train_qed/', vocab='./vocab_translation.txt')
+done
