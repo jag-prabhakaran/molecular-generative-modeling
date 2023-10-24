@@ -1,6 +1,3 @@
-Traceback (most recent call last):
-  File "./translate.py", line 46, in <module>
-    vocab = [x.strip("\r\n ").split() for x in open(args.vocab)]
-  File "./translate.py", line 46, in <listcomp>
-    vocab = [x.strip("\r\n ").split() for x in open(args.vocab)]
-OSError: [Errno 5] Input/output error
+/home/x-shaswata/.conda/envs/2021.05-py38/hgraph/lib/python3.7/site-packages/torch/nn/_reduction.py:42: UserWarning: size_average and reduce args will be deprecated, please use reduction='sum' instead.
+  warnings.warn(warning.format(ret))
+0it [00:00, ?it/s]1it [00:00,  1.11it/s]1it [00:00,  1.11it/s]

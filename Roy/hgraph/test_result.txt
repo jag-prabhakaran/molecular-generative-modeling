@@ -1,0 +1,1 @@
+COc1cc2c(cc1OC)CC([NH3+])C2 COc1cc2c(cc1OCc1ccc(Cl)cc1)CC([NH3+])C2

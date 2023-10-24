@@ -541,10 +541,13 @@ class HierMPNDecoder(nn.Module):
                             key=lambda x: x[1],
                             reverse=True,
                         )
+                        # print('To be added:',inter_cands)
 
                     for inter_label, _ in sorted_cands:
                         inter_label = list(zip(inter_label, attach_points))
                         if graph_batch.try_add_mol(bid, ismiles, inter_label):
+                            # print('Added molecule:',ismiles, inter_label)
+                            
                             new_atoms, new_bonds, attached = graph_batch.add_mol(
                                 bid, ismiles, inter_label, nth_child
                             )
@@ -553,6 +556,7 @@ class HierMPNDecoder(nn.Module):
                             )
                             tree_batch.update_attached(fa_node, inter_label)
                             success = True
+                            # print('Final molecule',graph_batch.get_mol()[0],'\n')
                             break
 
                 if not success:  # force backtrack

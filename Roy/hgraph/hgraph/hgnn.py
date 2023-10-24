@@ -159,12 +159,12 @@ class HierVGNN(nn.Module):
 
         batch_size = len(root_vecs)
         z_tree = (
-            torch.cat((torch.zeros(batch_size-1, 1, self.latent_size),torch.randn(1,1,self.latent_size)),axis=0)
+            torch.randn(num_decode, 1, self.latent_size)
             .expand(-1, tree_vecs.size(1), -1)
             .cuda()
         )
         z_graph = (
-            torch.cat((torch.zeros(batch_size-1, 1, self.latent_size),torch.randn(1,1,self.latent_size)),axis=0)
+            torch.randn(num_decode, 1, self.latent_size)
             .expand(-1, graph_vecs.size(1), -1)
             .cuda()
         )
