@@ -1,18 +1,33 @@
 # Hierarchical Generation of Molecular Graphs using Structural Motifs
 
-Our paper is at https://arxiv.org/pdf/2002.03230.pdf
-
 ## Installation
-First install the dependencies via conda:
+
+The conda environment is created as environment.yml
+
+conda env create --name hgraph --file=environments.yml
+
+It has the following dependencies:
  * PyTorch >= 1.0.0
  * networkx
  * RDKit >= 2019.03
  * numpy
  * Python >= 3.6
-
-And then run `pip install .`. Additional dependency for property-guided finetuning:
  * Chemprop >= 1.2.0
 
+
+## Reproducing the Model
+
+Submit a bash script on Slurm using the following command:
+
+```
+sbatch jobs/translation.sh
+```
+
+All the changes can be made in the job script 'jobs/translation.sh' to have more control on the output molecules.
+
+# Instructions given on the official Page
+
+Our paper is at https://arxiv.org/pdf/2002.03230.pdf
 
 ## Data Format
 * For graph generation, each line of a training file is a SMILES string of a molecule
