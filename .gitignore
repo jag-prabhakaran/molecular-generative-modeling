@@ -327,5 +327,7 @@ Roy/hgraph/train_qed
 Roy/hgraph/train_processed
 Roy/hgraph/train_short
 Roy/hgraph/train_logp06
-Roy/hgraph/ckpt
+Roy/hgraph/ckpt/chembl-pretrained
+Roy/hgraph/ckpt/finetune
+Roy/hgraph/ckpt/translation_logp06
 # End of https://www.toptal.com/developers/gitignore/api/macos,python,pycharm,dotenv
