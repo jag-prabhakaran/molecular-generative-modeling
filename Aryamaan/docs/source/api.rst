@@ -171,7 +171,17 @@ Run Model Inference
     {
         "model_type": "scaffold_constrained",
         "payload": {
-            "scaffold_smile": "CC(C)(C(=O)O)c1ccc(cc1)C(O)CCCN2CCC(CC2)C(O)(*)c4ccccc4",
+            "scaffold_smile": "cc(c)(c(=o)o)c1ccc(cc1)c(o)cccn2ccc(cc2)c(o)(*)c4ccccc4",
+            "log_p_min": 5.1,
+            "log_p_max": 5.9
+        }
+    }
+
+.. code-block:: json
+
+    {
+        "model_type": "vae_gan",
+        "payload": {
             "log_p_min": 5.1,
             "log_p_max": 5.9
         }
@@ -179,5 +189,38 @@ Run Model Inference
 **Response:**
 
 - 200 OK: Successful response.
+.. code-block:: json
 
+    {
+        "filtered_smiles": [
+            [
+                "C=C1OC2C(C)CC12",
+                1.5549
+            ],
+            [
+                "Cc1ccnc2c1O2",
+                1.49572
+            ],
+        ],
+        "smiles": [
+            [
+                "C=C1OC2C(C)CC12",
+                1.5549
+            ],
+            [
+                "CCC1(N)CCC(=O)C1",
+                0.8469000000000002
+            ],
+            [
+                "CC1C2NC1(O)C2(C)O",
+                -0.9525000000000006
+            ],
+            [
+                "Cc1ccnc2c1O2",
+                1.49572
+            ],
+        ]
+    }
+
+.. note:: At this time, the model inference returns both the filtered and unfiltered smiles. This for easier debugging and will be removed in the future.
 - 400 Bad Request: Malformed data.
