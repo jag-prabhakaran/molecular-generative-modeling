@@ -323,9 +323,9 @@ pyrightconfig.json
 
 #hgraph2graph
 
-Roy/hgraph2graph/train_qed
-Roy/hgraph2graph/train_processed
-Roy/hgraph2graph/train_short
-Roy/hgraph2graph/train_logp06
-
+Roy/hgraph/train_qed
+Roy/hgraph/train_processed
+Roy/hgraph/train_short
+Roy/hgraph/train_logp06
+Roy/hgraph/ckpt
 # End of https://www.toptal.com/developers/gitignore/api/macos,python,pycharm,dotenv

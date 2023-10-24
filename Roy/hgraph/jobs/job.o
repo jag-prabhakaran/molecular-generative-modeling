@@ -1,0 +1,79 @@
+Namespace(atom_vocab=<hgraph.vocab.Vocab object at 0x14e70cf14cd0>, batch_size=20, chemprop_model='./data/chemprop', clip_norm=5.0, depthG=15, depthT=15, diterG=3, diterT=1, dropout=0.0, embed_size=250, epoch=10, generative_model='./ckpt/chembl-pretrained/model.ckpt', hidden_size=250, inner_epoch=10, latent_size=32, lr=0.001, max_similarity=0.5, min_similarity=0.1, nsample=10000, rnn_type='LSTM', save_dir='./ckpt/finetune', seed=7, threshold=0.0, train='./data/chembl/short.txt', vocab='./vocab.txt')
+Loading pretrained parameter "encoder.encoder.0.cached_zero_vector".
+Loading pretrained parameter "encoder.encoder.0.W_i.weight".
+Loading pretrained parameter "encoder.encoder.0.W_h.weight".
+Loading pretrained parameter "encoder.encoder.0.W_o.weight".
+Loading pretrained parameter "encoder.encoder.0.W_o.bias".
+Loading pretrained parameter "readout.1.weight".
+Loading pretrained parameter "readout.1.bias".
+Loading pretrained parameter "readout.4.weight".
+Loading pretrained parameter "readout.4.bias".
+Moving model to cuda
+<hgraph.vocab.Vocab object at 0x14e70cf14cd0>
+Loading from checkpoint ./ckpt/chembl-pretrained/model.ckpt
+After pruning 1 -> 1
+Epoch 0 training...
+Epoch 0 filtering...
+Discovered 1 active molecules
+Discovered 0 novel active molecules
+After pruning 1 -> 1
+Epoch 1 training...
+Beta: 0.025, KL: 7.67, loss: 8.212, Word: 97.06, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.21, GNorm: 5.00
+Beta: 0.025, KL: 9.13, loss: 6.400, Word: 97.06, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.23, GNorm: 5.00
+Beta: 0.025, KL: 10.72, loss: 4.826, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.24, GNorm: 5.00
+Beta: 0.025, KL: 12.45, loss: 4.087, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.25, GNorm: 5.00
+Beta: 0.025, KL: 14.35, loss: 3.090, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.26, GNorm: 5.00
+Beta: 0.025, KL: 16.09, loss: 2.679, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.27, GNorm: 5.00
+Beta: 0.025, KL: 17.62, loss: 2.093, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.28, GNorm: 5.00
+Beta: 0.025, KL: 18.48, loss: 1.863, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.29, GNorm: 5.00
+Beta: 0.025, KL: 18.96, loss: 1.413, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.30, GNorm: 5.00
+Beta: 0.025, KL: 19.25, loss: 1.498, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.31, GNorm: 5.00
+Epoch 1 decoding...
+Epoch 1 filtering...
+Discovered 1 active molecules
+Discovered 0 novel active molecules
+After pruning 1 -> 1
+Epoch 2 training...
+Beta: 0.025, KL: 18.72, loss: 0.897, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.31, GNorm: 3.95
+Beta: 0.025, KL: 17.55, loss: 0.707, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.32, GNorm: 3.58
+Beta: 0.025, KL: 15.44, loss: 0.663, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.32, GNorm: 2.43
+Beta: 0.025, KL: 13.21, loss: 0.476, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.33, GNorm: 2.02
+Beta: 0.025, KL: 10.62, loss: 0.515, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.33, GNorm: 2.36
+Beta: 0.025, KL: 8.98, loss: 0.362, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.34, GNorm: 3.19
+Beta: 0.025, KL: 7.77, loss: 0.270, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.34, GNorm: 1.18
+Beta: 0.025, KL: 6.63, loss: 0.229, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.35, GNorm: 1.04
+Beta: 0.025, KL: 5.59, loss: 0.246, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.35, GNorm: 2.10
+Beta: 0.025, KL: 4.91, loss: 0.464, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.35, GNorm: 4.32
+Epoch 2 decoding...
+Epoch 2 filtering...
+Discovered 4 active molecules
+Discovered 0 novel active molecules
+After pruning 1 -> 1
+Epoch 3 training...
+Beta: 0.025, KL: 4.97, loss: 0.158, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.35, GNorm: 0.96
+Beta: 0.025, KL: 4.87, loss: 0.157, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.36, GNorm: 0.92
+Beta: 0.025, KL: 4.62, loss: 0.185, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.36, GNorm: 5.00
+Beta: 0.025, KL: 4.50, loss: 0.169, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.36, GNorm: 1.82
+Beta: 0.025, KL: 4.63, loss: 0.134, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.36, GNorm: 0.89
+Beta: 0.025, KL: 4.50, loss: 0.149, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.37, GNorm: 3.09
+Beta: 0.025, KL: 4.31, loss: 0.181, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.37, GNorm: 2.25
+Beta: 0.025, KL: 4.63, loss: 0.131, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.37, GNorm: 0.87
+Beta: 0.025, KL: 4.71, loss: 0.139, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.37, GNorm: 0.80
+Beta: 0.025, KL: 4.62, loss: 0.126, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.37, GNorm: 0.98
+Epoch 3 decoding...
+Epoch 3 filtering...
+Discovered 2 active molecules
+Discovered 0 novel active molecules
+After pruning 1 -> 1
+Epoch 4 training...
+Beta: 0.025, KL: 4.26, loss: 0.118, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.37, GNorm: 0.92
+Beta: 0.025, KL: 3.72, loss: 0.111, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.37, GNorm: 0.59
+Beta: 0.025, KL: 3.17, loss: 0.100, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.37, GNorm: 0.80
+Beta: 0.025, KL: 2.71, loss: 0.088, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.38, GNorm: 0.86
+Beta: 0.025, KL: 2.34, loss: 0.130, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.38, GNorm: 2.90
+Beta: 0.025, KL: 2.45, loss: 0.070, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.38, GNorm: 0.68
+Beta: 0.025, KL: 2.55, loss: 0.073, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.38, GNorm: 0.67
+Beta: 0.025, KL: 2.56, loss: 0.303, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.38, GNorm: 5.00
+Beta: 0.025, KL: 2.86, loss: 0.248, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.38, GNorm: 4.15
+Beta: 0.025, KL: 3.97, loss: 0.106, Word: 100.00, 100.00, Topo: 100.00, Assm: 100.00, PNorm: 1027.38, GNorm: 0.92
+Epoch 4 decoding...

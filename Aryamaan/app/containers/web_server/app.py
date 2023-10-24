@@ -161,20 +161,21 @@ def run_model_inference():
     data = request.get_json()
     if "model_type" not in data:
         return jsonify("Bad Request! Malformed data. Are you missing the model_type parameter?"), 400
+    payload = data['payload']
+    if "payload" not in data:
+        return jsonify("Bad Request! Malformed data. Are you missing the payload parameter?"), 400
     if data["model_type"] == ModelType.scaffold_constrained:
         logger.log(logging.INFO, "Running scaffold constrained model inference")
-        payload = data['payload']
-        if "payload" not in data:
-            return jsonify("Bad Request! Malformed data. Are you missing the payload parameter?"), 400
+        if "scaffold_smile" not in payload or "log_p_min" not in payload or "log_p_max" not in payload:
+            return jsonify("Bad Request! Malformed data. Are you missing the scaffold_smile, log_p_min, or log_p_max parameters in your payload?"), 400
         else:
-            if "scaffold_smile" not in payload or "log_p_min" not in payload or "log_p_max" not in payload:
-                return jsonify("Bad Request! Malformed data. Are you missing the scaffold_smile, log_p_min, or log_p_max parameters in your payload?"), 400
-            else:
-                response = requests.post("http://scaffold_constrained:5000/run_model_inference", json=payload)
-                return response.json(), response.status_code
+            response = requests.post("http://scaffold_constrained:5000/run_model_inference", json=payload)
+            return response.json(), response.status_code
     elif data["model_type"] == ModelType.vae_gan:
         logger.log(logging.INFO, "Running vae gan model inference")
-        response = requests.get("http://vae_gan:5000/generate_molecules")
+        if "log_p_min" not in payload or "log_p_max" not in payload:
+            return jsonify("Bad Request! Malformed data. Are you missing the log_p_min, or log_p_max parameters in your payload?"), 400
+        response = requests.post("http://vae_gan:5000/generate_molecules", json=payload)
         return response.json(), response.status_code
     else:
         return jsonify("Bad Request! Malformed Data. Unknown model_type."), 400

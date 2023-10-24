@@ -28,8 +28,8 @@ def run_model_inference():
     mol_smiles = [(Chem.MolToSmiles(mol), Crippen.MolLogP(mol)) for mol in mols]
     filtered_mol_smiles = [x for x in mol_smiles if data["log_p_min"] <= x[1] <= data["log_p_max"]]
     return jsonify({
-        "mol_smiles": mol_smiles,
-        "filtered_mol_smiles": filtered_mol_smiles
+        "smiles": mol_smiles,
+        "filtered_smiles": filtered_mol_smiles
     }), 200
 
 

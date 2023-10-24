@@ -1,4 +1,5 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
+from rdkit.Chem import Crippen
 
 import tensorflow as tf
 from generator import *
@@ -26,11 +27,16 @@ def sample(generator, batch_size):
         for i in range(batch_size)
     ]
 
-@app.route('/generate_molecules', methods=['GET'])
+@app.route('/generate_molecules', methods=['POST'])
 def generate_molecules():
+    data = request.get_json()
     molecules = sample(new_model.generator, batch_size=48)
-    smiles_list = [Chem.MolToSmiles(mol) for mol in molecules if mol is not None]
-    return jsonify({'generated_smiles': smiles_list})
+    smiles_list = [[Chem.MolToSmiles(mol), Crippen.MolLogP(mol)] for mol in molecules if mol is not None]
+    filtered_smiles = [x for x in smiles_list if data["log_p_min"] <= x[1] <= data["log_p_max"]]
+    return jsonify({
+        'smiles': smiles_list,
+        'filtered_smiles': filtered_smiles
+    })
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
