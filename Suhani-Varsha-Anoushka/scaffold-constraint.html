@@ -5,20 +5,52 @@
         <meta http-equiv="content-type" content="text/html; charset=UTF-8">
         <!--                                           -->
     
-        <script type="text/javascript" language="javascript" src="jsme/jsme.nocache.js"></script>
+        <script type="text/javascript" language="javascript" src="jsme.js"></script>
         <link rel="stylesheet" href="https://jsme-editor.github.io/dist/jsme/jsa.css">
         <link rel="stylesheet" href="https://jsme-editor.github.io/dist/jsme/gwt/chrome/chrome.css">
         <link rel="stylesheet" href="https://jsme-editor.github.io/dist/jsme/gwt/chrome/mosaic.css">
         <script src="https://jsme-editor.github.io/dist/jsme/FEB169D74546A3B279D22AE09AFB86BD.cache.js"></script>
+
+        <script>
+            //this function will be called after the JavaScriptApplet code has been loaded.
+            function jsmeOnLoad() {
+                var startingStructure = "20 19 C 6.61 -7.11 C 7.82 -7.81 O 6.61 -5.71 O 5.40 -7.81 N 7.82 -9.21 C 9.03 -7.11 C 10.25 -7.81 C 11.46 -7.11 N 12.67 -7.81 O 11.46 -5.71 C 13.88 -7.11 C 15.10 -7.81 O 15.10 -9.21 N 16.31 -7.11 C 17.52 -7.81 C 18.73 -7.11 C 13.88 -5.71 O 19.94 -7.81 O 18.73 -5.71 S 15.09 -5.01 1 2 1 1 3 2 1 4 1 2 5 -2 2 6 1 6 7 1 7 8 1 8 9 1 8 10 2 9 11 1 11 12 1 12 13 2 12 14 1 14 15 1 15 16 1 11 17 -1 16 18 1 16 19 2 17 20 1";
+                jsmeApplet = new JSApplet.JSME("jsme_container", "680px", "360px", {
+                    "options":"query,hydrogens,fullScreenIcon,newlook",
+                    "jme": startingStructure
+                });
+    
+            }
+            function getSmiles() {
+                var data = document.JME.smiles();
+                document.getElementById("jme_output").value = data;
+        }
+        </script>
 
 
     </head>
     <body>
         <div class = "desktop-main" style="width: 1440px; height: 1024px; position: relative; background: white">
             <div class="ModelCheckpointext" style="color: black; font-size: 30px; font-family: Inter; font-weight: 400; top: 20px; left: 50px; word-wrap: break-word; position:absolute">Model Checkpoint</div>
-            <div class = "Model Checkpoint"><select style="width: 243px; height: 43px; background: #D0C1C1; border-radius: 10px; top: 50px; left:50px; position:absolute"><option value="Model 1">Model 1</option><option value="Model 2">Model 2</option>
+            <div class = "Model Checkpoint"><select style="width: 243px; height: 43px; background: #D0C1C1; border-radius: 10px; top: 50px; left:50px; position:absolute"><option value="Model 1">SAMOA</option><option value="Model 2">Model 2</option>
                 <option value="Model 3">Model 3</option>Select Model</select></div>
-            <div class = "jsme" style="width: 600px; height: 350px; left: 550px; top: 100px; position: absolute; background: #787d7d; border-radius: 5px"></div>
+            <div class = "model-description" style = "position: absolute; width: 400px; height: 365px; top:160px; left:50px; background: #D0C1C1; border-radius: 5px">
+                <div class = "model-des-text" style = "height: 50px; width: 375px; left: 15px; position:relative">
+                    <p style="font-size: 15px;">
+                        This model employs a SMILES-based Recurrent Neural Network (RNN) generative model with a modified sampling procedure to achieve scaffold-constrained generation,
+                        to help in the lead-optimization phase of drug discovery efforts. The model takes as inputs (1) a molecular scaffold in the form of a SMILES string with open 
+                        positions marked by * (asterisks) [there can be one or many open positions in a single scaffold SMILES string] and (2) the upper bound of the number of
+                        molecules to be attempted to be generated. Note that the molecular generation process sometimes produces invalid SMILES strings and thus it often occurs 
+                        that the upper bound of the number of molecules to be generated is not reached (e.g.: when asking the model to generate 3000 molecules based on a scaffold, 
+                        around 2300-2500 candidate molecules are obtained). The model outputs SMILES strings for the generated molecules.
+                    </p>
+                </div>
+            </div>
+
+            <div id="jsme_container" style = "top: 70px; left: 550px; position: absolute">
+                <div tabindex="0" style="padding: 0px; outline: 0px; width: 680px; height: 360px; position: absolute"></div>
+            </div>
+            <div class = "show-smiles" style = "position:absolute; top:430px; left: 550px"><button type="button" onclick="alert(jsmeApplet.smiles())">Show SMILES</button></div>
             <div class = "Button-file-upload"><button style="width: 156px; height: 29px; left: 50px; top: 120px; position: absolute; background: #8BCACC; border-radius: 5px">Upload File</button></div>
             <div class = "generate button"><button style="width: 243px; height: 52px; left: 550px; top: 475px; position: absolute; background: #8BCACC; border-radius: 5px">GENERATE</button></div>
             <div class = "adme text" style="right: -75px; top: 50px; position: absolute; color: black; font-size: 30px; font-family: Inter; font-weight: 400; word-wrap: break-word">ADME Properties</div>
