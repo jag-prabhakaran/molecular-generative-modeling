@@ -23,7 +23,7 @@ Submit a bash script on Slurm using the following command:
 sbatch jobs/translation.sh
 ```
 
-All the changes can be made in the job script 'jobs/translation.sh' to have more control on the output molecules.
+All the changes can be made in the job script `jobs/translation.sh` to have more control on the output molecules.
 
 # Instructions given on the official Page
 
