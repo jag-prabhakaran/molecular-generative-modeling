@@ -65,5 +65,5 @@ with torch.no_grad():
     for init_smiles in tqdm(loader):
         final_smiles = model.decode(init_smiles)
         for x,y in zip(init_smiles, final_smiles):
-            print(x, y)
+            print(y)
 
