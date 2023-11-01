@@ -32,26 +32,12 @@ parser.add_argument('--diter', type=int, default=3)
 args = parser.parse_args()
 random.seed(1)
 
-# model = AtomVGNN(args).cuda()
 model = AtomVGNN(args).cpu()
 model_ckpt = torch.load(args.model, map_location=torch.device('cpu'))
-if type(model_ckpt) is tuple:
-    print('loading model with rationale distribution', file=sys.stderr)
-    testdata = list(model_ckpt[0].keys())
-    model.load_state_dict(model_ckpt[1])
-else:
-    print('loading pre-trained model', file=sys.stderr)
-    testdata = [line.split()[1] for line in open(args.rationale)] 
-    testdata = unique_rationales(testdata)
-    model.load_state_dict(model_ckpt)
-    
-## Only rationale is user input##
 
-testdata = [line.split()[1] for line in open(args.rationale)] 
-testdata = unique_rationales(testdata)
+print('loading pre-trained model', file=sys.stderr)
+testdata = [line.split()[1] for line in open(args.rationale)]
 model.load_state_dict(model_ckpt[1])
-
-#################################
 
 print('total # rationales:', len(testdata), file=sys.stderr)
 model.eval()
@@ -59,7 +45,6 @@ dataset = SubgraphDataset(testdata, args.atom_vocab, args.batch_size, args.num_d
 
 loader = DataLoader(dataset, batch_size=1, shuffle=False, num_workers=0, collate_fn=lambda x:x[0])
 torch.manual_seed(args.seed)
-# torch.cuda.manual_seed(args.seed)
 
 with torch.no_grad():
     for init_smiles in tqdm(loader):

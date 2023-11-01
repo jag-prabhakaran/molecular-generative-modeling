@@ -21,7 +21,6 @@ class GraphDecoder(nn.Module):
         self.hidden_size = hidden_size
         self.embed_size = embed_size
         self.latent_size = latent_size
-        # self.itensor = torch.LongTensor([]).cuda()
         self.itensor = torch.LongTensor([]).cpu()
 
         self.mpn = GraphEncoder(avocab, rnn_type, embed_size, hidden_size, depth)
@@ -51,43 +50,12 @@ class GraphDecoder(nn.Module):
                 nn.Linear(hidden_size + len(MolGraph.BOND_LIST), hidden_size),
                 nn.ReLU()
         )
-        # self.E_a = torch.eye( avocab.size() ).cuda() 
-        # self.E_b = torch.eye( len(MolGraph.BOND_LIST) ).cuda()
         self.E_a = torch.eye( avocab.size() ).cpu()
         self.E_b = torch.eye( len(MolGraph.BOND_LIST) ).cpu()
 
         self.topo_loss = nn.BCEWithLogitsLoss(reduction='sum')
         self.atom_loss = nn.CrossEntropyLoss(reduction='sum')
         self.bond_loss = nn.CrossEntropyLoss(reduction='sum')
-        
-    def apply_graph_mask(self, tensors, hgraph):
-        fnode, fmess, agraph, bgraph, scope = tensors
-        agraph = agraph * index_select_ND(hgraph.emask, 0, agraph)
-        bgraph = bgraph * index_select_ND(hgraph.emask, 0, bgraph)
-        return fnode, fmess, agraph, bgraph, scope
-
-    def update_graph_mask(self, graph_batch, new_atoms, hgraph, visited):
-        new_atom_index = hgraph.vmask.new_tensor(new_atoms)
-        hgraph.vmask.scatter_(0, new_atom_index, 1)
-
-        visited.update(new_atoms)
-        new_bonds = [] 
-        for yid in new_atoms:
-            for zid in graph_batch[yid]:
-                if zid in visited:
-                    new_bonds.append( graph_batch[yid][zid]['mess_idx'] )
-                    new_bonds.append( graph_batch[zid][yid]['mess_idx'] )
-
-        new_bond_index = hgraph.emask.new_tensor(new_bonds)
-        if len(new_bonds) > 0:
-            hgraph.emask.scatter_(0, new_bond_index, 1)
-
-    def attention(self, src_vecs, queries):
-        cur_vecs = self.W_att(queries).unsqueeze(-1)  # B x H x 1
-        att_score = torch.bmm(src_vecs, cur_vecs)  # B x N x H * B x H x 1
-        att_vecs = F.softmax(att_score, dim=1) * src_vecs  # B x N x 1 * B x N x H
-        att_vecs = att_vecs.sum(dim=1)  # B x H
-        return att_vecs
 
     def get_topo_score(self, src_graph_vecs, batch_idx, topo_vecs):
         topo_cxt = src_graph_vecs.index_select(0, batch_idx)
@@ -102,90 +70,6 @@ class GraphDecoder(nn.Module):
         bond_cxt = src_graph_vecs.index_select(0, batch_idx)
         bond_vecs = torch.cat([bond_vecs, bond_cxt], dim=-1)
         return self.bondNN(bond_vecs)
-
-    def forward(self, src_graph_vecs, graph_batch, graph_tensors, init_atoms, orders):
-        batch_size = len(orders)
-
-        hgraph = HTuple(
-            node = src_graph_vecs.new_zeros(graph_tensors[0].size(0), self.hidden_size),
-            mess = self.rnn_cell.get_init_state(graph_tensors[1]),
-            vmask = self.itensor.new_zeros(graph_tensors[0].size(0)),
-            emask = self.itensor.new_zeros(graph_tensors[1].size(0))
-        )
-        # We assume that there is no edge directly connecting two initial subsgraphs
-        
-        all_topo_preds, all_atom_preds, all_bond_preds = [], [], []
-        graph_tensors = self.mpn.embed_graph(graph_tensors) + (graph_tensors[-1],) #preprocess graph tensors
-
-        visited = set()
-        new_atoms = [a for alist in init_atoms for a in alist]
-        self.update_graph_mask(graph_batch, new_atoms, hgraph, visited)
-        
-        maxt = max([len(x) for x in orders])
-        for t in range(maxt):
-            batch_list = [i for i in range(batch_size) if t < len(orders[i])]
-            assert hgraph.vmask[0].item() == 0 and hgraph.emask[0].item() == 0
-
-            cur_graph_tensors = self.apply_graph_mask(graph_tensors, hgraph)
-            vmask = hgraph.vmask.unsqueeze(-1).float()
-            hgraph.node, hgraph.mess = self.mpn.encoder(*cur_graph_tensors[:-1], mask=vmask)
-
-            new_atoms = []
-            for i in batch_list:
-                xid, yid, front, fbond = orders[i][t]
-                st,le = graph_tensors[-1][i]
-                stop = 1 if yid is None else 0
-
-                gvec = hgraph.node[st : st + le].sum(dim=0)
-                cxt_vec = torch.cat( (gvec, hgraph.node[xid]), dim=-1)
-                all_topo_preds.append( (cxt_vec, i, stop) ) 
-                #print('xvec', hgraph.mess[cur_graph_tensors[2][xid]].sum(dim=-1))
-                #print('xvec', cur_graph_tensors[1][cur_graph_tensors[2][xid]].nonzero())
-
-                if stop == 0:
-                    new_atoms.append(yid)
-                    ylabel = graph_batch.nodes[yid]['label']
-                    atom_type = self.avocab[ ylabel ]
-                    all_atom_preds.append( (cxt_vec, i, atom_type) )
-
-                    hist = torch.zeros_like(hgraph.node[xid])  # avoid inplace operation
-                    atom_vec = self.E_a[atom_type]
-                    assert front[0] == xid
-                    for zid,bt in zip(front, fbond):
-                        cur_hnode = torch.cat([hist, atom_vec], dim=-1)
-                        cur_hnode = self.R_bond(cur_hnode)
-                        pairs = torch.cat([gvec, cur_hnode, hgraph.node[zid]], dim=-1)
-                        all_bond_preds.append( (pairs, i, bt) )
-                        if bt > 0: 
-                            bond_vec = self.E_b[bt]
-                            z_hnode = torch.cat([hgraph.node[zid], bond_vec], dim=-1)
-                            hist += self.W_bond(z_hnode)
-
-            self.update_graph_mask(graph_batch, new_atoms, hgraph, visited)
-
-        topo_vecs, batch_idx, topo_labels = zip_tensors(all_topo_preds)
-        topo_scores = self.get_topo_score(src_graph_vecs, batch_idx, topo_vecs)
-        topo_loss = self.topo_loss(topo_scores, topo_labels.float())
-        topo_acc = get_accuracy_bin(topo_scores, topo_labels)
-        #print(topo_scores)
-        #print(topo_labels)
-
-        atom_vecs, batch_idx, atom_labels = zip_tensors(all_atom_preds)
-        atom_scores = self.get_atom_score(src_graph_vecs, batch_idx, atom_vecs)
-        atom_loss = self.atom_loss(atom_scores, atom_labels)
-        atom_acc = get_accuracy(atom_scores, atom_labels)
-        #print(atom_scores.max(dim=-1))
-        #print(atom_labels)
-
-        bond_vecs, batch_idx, bond_labels = zip_tensors(all_bond_preds)
-        bond_scores = self.get_bond_score(src_graph_vecs, batch_idx, bond_vecs)
-        bond_loss = self.bond_loss(bond_scores, bond_labels)
-        bond_acc = get_accuracy(bond_scores, bond_labels)
-        #print(bond_scores.max(dim=-1)[1])
-        #print(bond_labels)
-
-        loss = (topo_loss + atom_loss + bond_loss) / batch_size
-        return loss, atom_acc, topo_acc, bond_acc
 
 
     def decode(self, src_graph_vecs, init_mols, max_decode_step=80):
@@ -214,9 +98,6 @@ class GraphDecoder(nn.Module):
                 cxt_vec = torch.cat( (gvec, hgraph.node[xid]), dim=-1).unsqueeze(0)
                 stop_score = self.get_topo_score(src_graph_vecs, bid_tensor, cxt_vec)
                 stop_score = stop_score.item()
-                #print('xvec', hgraph.mess[graph_tensors[2][xid]].sum(dim=-1))
-                #print('xvec', graph_tensors[1][graph_tensors[2][xid]].nonzero())
-                #print(stop_score)
 
                 if stop_score > 0 or graph_batch.can_expand(xid) is False:
                     queue[bid].popleft()
@@ -240,7 +121,6 @@ class GraphDecoder(nn.Module):
                     bid_tensor = self.itensor.new_tensor( [bid] )
                     bond_scores = self.get_bond_score( src_graph_vecs, bid_tensor, pairs )
                     bt = bond_scores.max(dim=-1)[1].item()
-                    #print(bond_scores, bt)
                     if bt > 0: 
                         graph_batch.add_bond(yid, zid, bt)
                         bond_vec = self.E_b[bt]

@@ -4,7 +4,7 @@ import rdkit.Chem as Chem
 import torch.nn.functional as F
 from fuseprop.nnutils import *
 from fuseprop.mol_graph import MolGraph
-from fuseprop.rnn import GRU, LSTM
+from fuseprop.rnn import LSTM
 
 class MPNEncoder(nn.Module):
 
@@ -17,10 +17,7 @@ class MPNEncoder(nn.Module):
                 nn.Linear(node_fdim + hidden_size, hidden_size), 
                 nn.ReLU()
         )
-
-        if rnn_type == 'GRU':
-            self.rnn = GRU(input_size, hidden_size, depth) 
-        elif rnn_type == 'LSTM':
+        if rnn_type == 'LSTM':
             self.rnn = LSTM(input_size, hidden_size, depth) 
         else:
             raise ValueError('unsupported rnn cell type ' + rnn_type)
@@ -47,29 +44,10 @@ class GraphEncoder(nn.Module):
         self.hidden_size = hidden_size
         self.atom_size = atom_size = avocab.size() + MolGraph.MAX_POS
         self.bond_size = bond_size = len(MolGraph.BOND_LIST) 
-
-        # self.E_a = torch.eye( avocab.size() ).cuda()
-        # self.E_b = torch.eye( len(MolGraph.BOND_LIST) ).cuda()
-        # self.E_pos = torch.eye( MolGraph.MAX_POS ).cuda()
+        
         self.E_a = torch.eye( avocab.size() ).cpu()
         self.E_b = torch.eye( len(MolGraph.BOND_LIST) ).cpu()
         self.E_pos = torch.eye( MolGraph.MAX_POS ).cpu()
 
         self.encoder = MPNEncoder(rnn_type, atom_size + bond_size, atom_size, hidden_size, depth)
-
-    def embed_graph(self, graph_tensors):
-        fnode, fmess, agraph, bgraph, _ = graph_tensors
-        fnode1 = self.E_a.index_select(index=fnode[:, 0], dim=0)
-        fnode2 = self.E_pos.index_select(index=fnode[:, 1], dim=0)
-        hnode = torch.cat([fnode1, fnode2], dim=-1)
-
-        fmess1 = hnode.index_select(index=fmess[:, 0], dim=0)
-        fmess2 = self.E_b.index_select(index=fmess[:, 2], dim=0)
-        hmess = torch.cat([fmess1, fmess2], dim=-1)
-        return hnode, hmess, agraph, bgraph
-
-    def forward(self, graph_tensors):
-        tensors = self.embed_graph(graph_tensors)
-        hatom,_ = self.encoder(*tensors, mask=None)
-        return hatom
 
