@@ -36,6 +36,7 @@ class PairVocab(object):
             self.mask[hid, idx] = 1000.0
 
         # if cuda: self.mask = self.mask.cuda()
+        if cuda: self.mask = self.mask.cpu()
         self.mask = self.mask - 1000.0
             
     def __getitem__(self, x):

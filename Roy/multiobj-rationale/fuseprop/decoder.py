@@ -22,7 +22,7 @@ class GraphDecoder(nn.Module):
         self.embed_size = embed_size
         self.latent_size = latent_size
         # self.itensor = torch.LongTensor([]).cuda()
-        self.itensor = torch.LongTensor([])
+        self.itensor = torch.LongTensor([]).cpu()
 
         self.mpn = GraphEncoder(avocab, rnn_type, embed_size, hidden_size, depth)
         self.rnn_cell = self.mpn.encoder.rnn
@@ -53,8 +53,8 @@ class GraphDecoder(nn.Module):
         )
         # self.E_a = torch.eye( avocab.size() ).cuda() 
         # self.E_b = torch.eye( len(MolGraph.BOND_LIST) ).cuda()
-        self.E_a = torch.eye( avocab.size() )
-        self.E_b = torch.eye( len(MolGraph.BOND_LIST) )
+        self.E_a = torch.eye( avocab.size() ).cpu()
+        self.E_b = torch.eye( len(MolGraph.BOND_LIST) ).cpu()
 
         self.topo_loss = nn.BCEWithLogitsLoss(reduction='sum')
         self.atom_loss = nn.CrossEntropyLoss(reduction='sum')

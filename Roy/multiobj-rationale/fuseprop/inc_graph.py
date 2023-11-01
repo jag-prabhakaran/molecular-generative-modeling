@@ -15,7 +15,7 @@ class IncBase(object):
         self.edge_dict = {None : 0} #make sure edge is 1 index
 
         # self.fnode = torch.zeros(max_nodes * batch_size, node_fdim).cuda()
-        self.fnode = torch.zeros(max_nodes * batch_size, node_fdim)
+        self.fnode = torch.zeros(max_nodes * batch_size, node_fdim).cpu()
         self.fmess = self.fnode.new_zeros(max_edges * batch_size, edge_fdim)
         self.agraph = self.fnode.new_zeros(max_nodes * batch_size, max_nb).long()
         self.bgraph = self.fnode.new_zeros(max_edges * batch_size, max_nb).long()
@@ -149,11 +149,11 @@ class IncGraph(IncBase):
         f_atom[ self.avocab[(symbol,charge)] ] = 1
         f_pos[ nth_atom ] = 1
         # return torch.cat( [f_atom, f_pos], dim=-1 ).cuda()
-        return torch.cat( [f_atom, f_pos], dim=-1 )
+        return torch.cat( [f_atom, f_pos], dim=-1 ).cpu()
 
     def get_mess_feature(self, atom_fea, bond_type):
         # bond_fea = torch.zeros(len(MolGraph.BOND_LIST)).cuda()
-        bond_fea = torch.zeros(len(MolGraph.BOND_LIST))
+        bond_fea = torch.zeros(len(MolGraph.BOND_LIST)).cpu()
         bond_fea[ bond_type ] = 1
         return torch.cat( [atom_fea, bond_fea], dim=-1 )
 

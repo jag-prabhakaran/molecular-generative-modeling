@@ -9,7 +9,8 @@ from fuseprop.nnutils import *
 
 def make_cuda(graph_tensors):
     make_tensor = lambda x: x if type(x) is torch.Tensor else torch.tensor(x)
-    graph_tensors = [make_tensor(x).cuda().long() for x in graph_tensors[:-1]] + [graph_tensors[-1]]
+    # graph_tensors = [make_tensor(x).cuda().long() for x in graph_tensors[:-1]] + [graph_tensors[-1]]
+    graph_tensors = [make_tensor(x).cpu().long() for x in graph_tensors[:-1]] + [graph_tensors[-1]]
     return graph_tensors
 
 
@@ -32,7 +33,7 @@ class AtomVGNN(nn.Module):
     def decode(self, init_smiles):
         batch_size = len(init_smiles)
         # z_graph_vecs = torch.randn(batch_size, self.latent_size).cuda()
-        z_graph_vecs = torch.randn(batch_size, self.latent_size)
+        z_graph_vecs = torch.randn(batch_size, self.latent_size).cpu()
         return self.decoder.decode(z_graph_vecs, init_smiles)
 
     def rsample(self, z_vecs, W_mean, W_var, mean_only=False):
@@ -45,7 +46,7 @@ class AtomVGNN(nn.Module):
             return z_mean, kl_loss
         else:
             # epsilon = torch.randn_like(z_mean).cuda()
-            epsilon = torch.randn_like(z_mean)
+            epsilon = torch.randn_like(z_mean).cpu()
             z_vecs = z_mean + torch.exp(z_log_var / 2) * epsilon
             return z_vecs, kl_loss
 

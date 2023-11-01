@@ -33,8 +33,8 @@ args = parser.parse_args()
 random.seed(1)
 
 # model = AtomVGNN(args).cuda()
-model = AtomVGNN(args)
-model_ckpt = torch.load(args.model)
+model = AtomVGNN(args).cpu()
+model_ckpt = torch.load(args.model, map_location=torch.device('cpu'))
 if type(model_ckpt) is tuple:
     print('loading model with rationale distribution', file=sys.stderr)
     testdata = list(model_ckpt[0].keys())
@@ -44,6 +44,14 @@ else:
     testdata = [line.split()[1] for line in open(args.rationale)] 
     testdata = unique_rationales(testdata)
     model.load_state_dict(model_ckpt)
+    
+## Only rationale is user input##
+
+testdata = [line.split()[1] for line in open(args.rationale)] 
+testdata = unique_rationales(testdata)
+model.load_state_dict(model_ckpt[1])
+
+#################################
 
 print('total # rationales:', len(testdata), file=sys.stderr)
 model.eval()
