@@ -1,4 +1,4 @@
-# Welcome to Docker
+# Multi-Objective Rationale RL
 
 Start by building the docker image. 
 
