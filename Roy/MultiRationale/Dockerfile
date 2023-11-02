@@ -7,3 +7,7 @@ RUN micromamba install -y -n base -f env.yml && \
 
 # Copy required files:
 COPY --chown=$MAMBA_USER:$MAMBA_USER multiobj-rationale "/tmp/model_files/"
+
+# Install Files
+apt-get install vim
+
