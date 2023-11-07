@@ -5,6 +5,8 @@ import tensorflow as tf
 from rdkit import Chem
 from rdkit.Chem import Crippen
 from generator import GraphWGAN, generator, discriminator, graph_to_molecule
+from sagemaker_inference.default_handler_service import DefaultHandlerService
+from sagemaker_inference import model_server
 
 
 class ModelHandler(object):
@@ -42,7 +44,9 @@ class ModelHandler(object):
         :param request: JSON string of request payload.
         :return: list of preprocessed model input
         """
-        request = json.loads(request[0])
+        print(request)
+        request = json.loads(request[0]['body'])
+        print(request)
         self.num_molecules = request["num_molecules"]
         self.log_p_min = request["log_p_min"]
         self.log_p_max = request["log_p_max"]
@@ -52,7 +56,7 @@ class ModelHandler(object):
         Internal inference method
         :return:
         """
-        z = tf.random.normal((self.num_molecules, 8))
+        z = tf.random.normal((self.num_molecules, 64))
         graph = self.model.generator.predict(z)
         adjacency = tf.argmax(graph[0], axis=1)
         adjacency = tf.one_hot(adjacency, depth=4, axis=1)
@@ -77,10 +81,17 @@ class ModelHandler(object):
             } for mol in model_output if mol is not None
         ]
         filtered_smiles = [x for x in smiles_list if self.log_p_min <= x["logP"] <= self.log_p_max]
-        return json.dumps({
+        return [json.dumps({
             'smiles': smiles_list,
             'filtered_smiles': filtered_smiles
-        })
+        })]
+
+    def ping(self):
+        """
+        Ping to get system health
+        :return:
+        """
+        return "PONG"
 
     def handle(self, data, context):
         """
