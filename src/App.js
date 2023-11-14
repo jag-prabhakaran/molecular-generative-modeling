@@ -1,13 +1,17 @@
 import React from 'react';
-import logo from './logo.svg';
-import MyComponent from './components/MyComponent'; // Make sure to adjust the path if needed
+import ModelCheckpoint from './components/ModelCheckpoint';
+import ModelDescription from './components/ModelDescription';
+import JSMEContainer from './components/JSMEContainer';
 import './App.css';
+
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <MyComponent /> {/* Add your MyComponent here */}
+        <ModelCheckpoint />
+        <ModelDescription />
+        <JSMEContainer />
       </header>
     </div>
   );
