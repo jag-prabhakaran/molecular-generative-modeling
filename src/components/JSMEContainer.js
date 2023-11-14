@@ -11,7 +11,6 @@ const JSMEContainer = () => {
             height="360px"
             width="680px"
             options="newlook,star"
-            jme="startingStructure"
             />
     </div>
     );

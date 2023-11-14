@@ -7,7 +7,7 @@ const ModelCheckpoint = () => {
         <div class="ModelCheckpointText" style={{
             color: 'black',
             fontSize: '3.5vh',
-            fontFamily: 'Inter',
+            fontFamily: 'monospace',
             fontWeight: 400,
             top: '5vh',
             left: '2vw',

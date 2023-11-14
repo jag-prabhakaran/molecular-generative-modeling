@@ -20,7 +20,8 @@ const ModelDescription = () => {
                 }}>
                     <p style = {{
                         fontSize: '15px',
-                        color: '#000'
+                        color: '#000',
+                        fontFamily: "monospace"
                     }}>
                         This model employs a SMILES-based Recurrent Neural Network (RNN) generative model to 
                         achieve scaffold-constrained generation. 

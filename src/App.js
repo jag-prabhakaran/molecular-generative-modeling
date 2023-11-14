@@ -2,6 +2,8 @@ import React from 'react';
 import ModelCheckpoint from './components/ModelCheckpoint';
 import ModelDescription from './components/ModelDescription';
 import JSMEContainer from './components/JSMEContainer';
+import Properties from './components/Properties';
+import GenerateButton from './components/GenerateButton';
 import './App.css';
 
 
@@ -12,6 +14,8 @@ function App() {
         <ModelCheckpoint />
         <ModelDescription />
         <JSMEContainer />
+        <Properties />
+        <GenerateButton />
       </header>
     </div>
   );
