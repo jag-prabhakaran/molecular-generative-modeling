@@ -4,13 +4,15 @@ import ModelDescription from './components/ModelDescription';
 import JSMEContainer from './components/JSMEContainer';
 import Properties from './components/Properties';
 import GenerateButton from './components/GenerateButton';
+import VisualOutput from './components/VisualOutput'
 import './App.css';
 
 
 function App() {
-  const [smiles, setSmiles] = useState('')
-  const [logP, setLogP] = useState('')
-  const [NumOfMolecules, setNumOfMolecules] = useState('')
+  const [smiles, setSmiles] = useState('');
+  const [logP, setLogP] = useState('');
+  const [NumOfMolecules, setNumOfMolecules] = useState('');
+  const [visualData, setVisualData] = useState(false);
 
   const handleSmilesChange = (newSmiles) => {
     setSmiles(newSmiles);
@@ -24,12 +26,13 @@ function App() {
     setNumOfMolecules(newNumOfMolecules)
   };
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     const data = {
       smiles: smiles,
       logP: logP,
       NumOfMolecules: NumOfMolecules
     };
+    setVisualData(true)
     console.log('Data to be sent:', data)
   }
   return (
@@ -47,6 +50,7 @@ function App() {
         onNumOfMoleculesChange={handleNumOfMoleculesChange}
         />
         <GenerateButton onGenerate={handleGenerate}/>
+        {visualData && < VisualOutput />}
       </header>
     </div>
   );
