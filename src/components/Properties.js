@@ -1,5 +1,5 @@
 
-const Properties = () => {
+const Properties = ({ logP, NumOfMolecules, onLogPChange, onNumOfMoleculesChange }) => {
     return (
         <div style={{
             position: "absolute",
@@ -46,8 +46,10 @@ const Properties = () => {
                         backgroundColor: "lightgray"
                     }}
                     type="number"
-                    value={"0"}
+                    value={logP}
                     id="logPValue"
+                    onChange={(e) => onLogPChange(e.target.value)}
+                    placeholder="0"
                     >
                     </input>
                 </div>
@@ -82,8 +84,10 @@ const Properties = () => {
                         backgroundColor: "lightgray"
                     }}
                     type="number"
-                    value={"25"}
+                    value={NumOfMolecules}
                     id="NumOfMoleculesValue"
+                    onChange={(e) => onNumOfMoleculesChange(e.target.value)}
+                    placeholder="25"
                     >
                     </input>
                 </div>

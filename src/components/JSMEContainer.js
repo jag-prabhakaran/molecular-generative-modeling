@@ -1,6 +1,10 @@
 import { Jsme } from "jsme-react";
 
-const JSMEContainer = () => {
+const JSMEContainer = ({ onSmilesChange }) => {
+    const handleSmilesChange = (newSmiles) => {
+        onSmilesChange(newSmiles)
+    };
+
     return (
     <div style={{
         position: "absolute",
@@ -11,6 +15,7 @@ const JSMEContainer = () => {
             height="360px"
             width="680px"
             options="newlook,star"
+            onChange={handleSmilesChange}
             />
     </div>
     );
