@@ -1,10 +1,11 @@
 import os.path
 import json
-from tensorflow import keras
-import tensorflow as tf
 from rdkit import Chem
 from rdkit.Chem import Crippen
-from generator import GraphWGAN, generator, discriminator, graph_to_molecule
+from model_files.scaffold_constrained_model import scaffold_constrained_RNN
+from model_files.data_structs import Vocabulary
+import torch
+from model_files.utils import seq_to_smiles
 
 
 class ModelHandler(object):
@@ -16,7 +17,7 @@ class ModelHandler(object):
     def __init__(self):
         self.initialized = False
         self.model = None
-        self.num_molecules = 48
+        self.scaffold_smile = None
         self.log_p_min = 0
         self.log_p_max = 5
 
@@ -27,14 +28,12 @@ class ModelHandler(object):
         :return:
         """
         self.initialized = True
-        self.model = GraphWGAN(generator, discriminator, discriminator_steps=1)
-        self.model.compile(
-            optimizer_generator=keras.optimizers.Adam(5e-4),
-            optimizer_discriminator=keras.optimizers.Adam(5e-4),
-        )
-        self.model.built = True
         model_dir = context.system_properties.get("model_dir")
-        self.model.load_weights(os.path.join(model_dir, 'model_weights.h5'))
+        voc = Vocabulary(init_from_file=os.path.join(model_dir, "data/DistributionLearningBenchmark/Voc"))
+        self.model = scaffold_constrained_RNN(voc)
+        self.model.rnn.load_state_dict(torch.load(os.path.join(model_dir, "data/DistributionLearningBenchmark/Prior_ChEMBL_randomized.ckpt"), map_location=lambda storage, loc: storage))
+
+
 
     def preprocess(self, request):
         """
@@ -42,29 +41,16 @@ class ModelHandler(object):
         :param request: JSON string of request payload.
         :return: list of preprocessed model input
         """
-        print(request)
         request = json.loads(request[0]['body'])
-        print(request)
-        self.num_molecules = request["num_molecules"]
-        self.log_p_min = request["log_p_min"]
-        self.log_p_max = request["log_p_max"]
+        self.scaffold_smile = request["scaffold_smile"]
 
     def inference(self):
         """
         Internal inference method
         :return:
         """
-        z = tf.random.normal((self.num_molecules, 64))
-        graph = self.model.generator.predict(z)
-        adjacency = tf.argmax(graph[0], axis=1)
-        adjacency = tf.one_hot(adjacency, depth=4, axis=1)
-        adjacency = tf.linalg.set_diag(adjacency, tf.zeros(tf.shape(adjacency)[:-1]))
-        features = tf.argmax(graph[1], axis=2)
-        features = tf.one_hot(features, depth=5, axis=2)
-        return [
-            graph_to_molecule([adjacency[i].numpy(), features[i].numpy()])
-            for i in range(self.num_molecules)
-        ]
+        seqs, agent_likelihood, entropy = self.model.sample(pattern=self.scaffold_smile, batch_size=50)
+        return seqs
 
     def postprocess(self, model_output):
         """
@@ -72,17 +58,18 @@ class ModelHandler(object):
         :param model_output: Output from the inference method
         :return: Output after post-processing step
         """
-        smiles_list = [
-            {
-                "smile": Chem.MolToSmiles(mol),
-                "logP": Crippen.MolLogP(mol)
-            } for mol in model_output if mol is not None
-        ]
-        filtered_smiles = [x for x in smiles_list if self.log_p_min <= x["logP"] <= self.log_p_max]
+        smiles = seq_to_smiles(model_output, self.model.voc)
+        mols = []
+        for smile in smiles:
+            mol = Chem.MolFromSmiles(smile)
+            if mol:
+                mols.append(mol)
+        mol_smiles = [(Chem.MolToSmiles(mol), Crippen.MolLogP(mol)) for mol in mols]
+        filtered_mol_smiles = [Chem.MolToSmiles(x) for x in mols if self.log_p_min <= Chem.Crippen.MolLogP(x) <= self.log_p_max]
         # return as list to keep sagemaker mms happy
         return [json.dumps({
-            'smiles': smiles_list,
-            'filtered_smiles': filtered_smiles
+            "smiles": mol_smiles,
+            "filtered_smiles": filtered_mol_smiles
         })]
 
     def ping(self):
