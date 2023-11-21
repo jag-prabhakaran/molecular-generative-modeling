@@ -28,6 +28,7 @@ class ModelHandler(object):
         :return:
         """
         self.initialized = True
+        self.num_molecules = 50
         model_dir = context.system_properties.get("model_dir")
         voc = Vocabulary(init_from_file=os.path.join(model_dir, "data/DistributionLearningBenchmark/Voc"))
         self.model = scaffold_constrained_RNN(voc)
@@ -43,13 +44,14 @@ class ModelHandler(object):
         """
         request = json.loads(request[0]['body'])
         self.scaffold_smile = request["scaffold_smile"]
+        self.num_molecules = request["num_molecules"]
 
     def inference(self):
         """
         Internal inference method
         :return:
         """
-        seqs, agent_likelihood, entropy = self.model.sample(pattern=self.scaffold_smile, batch_size=50)
+        seqs, agent_likelihood, entropy = self.model.sample(pattern=self.scaffold_smile, batch_size=self.num_molecules)
         return seqs
 
     def postprocess(self, model_output):
@@ -64,8 +66,13 @@ class ModelHandler(object):
             mol = Chem.MolFromSmiles(smile)
             if mol:
                 mols.append(mol)
-        mol_smiles = [(Chem.MolToSmiles(mol), Crippen.MolLogP(mol)) for mol in mols]
-        filtered_mol_smiles = [Chem.MolToSmiles(x) for x in mols if self.log_p_min <= Chem.Crippen.MolLogP(x) <= self.log_p_max]
+        mol_smiles = [
+            {
+                "smile": Chem.MolToSmiles(mol),
+                "logP": Crippen.MolLogP(mol)
+            } for mol in mols if mol is not None
+        ]
+        filtered_mol_smiles = [x for x in mol_smiles if self.log_p_min <= x["logP"] <= self.log_p_max]
         # return as list to keep sagemaker mms happy
         return [json.dumps({
             "smiles": mol_smiles,
