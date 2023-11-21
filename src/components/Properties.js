@@ -1,5 +1,5 @@
 
-const Properties = ({ logP, NumOfMolecules, onLogPChange, onNumOfMoleculesChange }) => {
+const Properties = ({ logPMax, onLogPMaxChange, logPMin, onLogPMinChange, NumOfMolecules, onNumOfMoleculesChange }) => {
     return (
         <div style={{
             position: "absolute",
@@ -26,30 +26,56 @@ const Properties = ({ logP, NumOfMolecules, onLogPChange, onNumOfMoleculesChange
             }}>
                 <div class="logPText" style={{
                     color: "black",
-                    fontSize: "2.75vh",
+                    fontSize: "2vh",
                     fontFamily: "monospace",
                     fontWeight: 200,
                     wordWrap: "break-word",
-                    top: "0.80vh",
-                    left: "-2vw",
-                    position: "relative"
+                    top: "1.5vh",
+                    left: "1.5vw",
+                    position: "absolute"
                 }}>
                     logP
                 </div>
-                <div class="logPValue">
+                <div class="logPMaxValue">
                     <input style= {{
-                        position: "relative",
-                        top: "-3.5vh",
-                        left: "4vw",
+                        position: "absolute",
+                        top: "0.7vh",
+                        left: "5vw",
                         width: "50px",
                         height: "30px",
                         backgroundColor: "lightgray"
                     }}
                     type="number"
-                    value={logP}
-                    id="logPValue"
-                    onChange={(e) => onLogPChange(e.target.value)}
-                    placeholder="0"
+                    value={logPMax}
+                    id="logPMax"
+                    onChange={(e) => onLogPMaxChange(e.target.value)}>
+                    </input>
+                </div>
+                <div class="ToText" style={{
+                    color: "black",
+                    fontSize: "2vh",
+                    fontFamily: "monospace",
+                    fontWeight: "150",
+                    wordWrap: "break-word",
+                    top: "1.5vh",
+                    left: "9vw",
+                    position: "absolute"
+                }}>
+                    to
+                </div>
+                <div class="logPMinValue">
+                    <input style= {{
+                        position: "absolute",
+                        top: "0.7vh",
+                        left: "11vw",
+                        width: "50px",
+                        height: "30px",
+                        backgroundColor: "lightgray"
+                    }}
+                    type="number"
+                    value={logPMin}
+                    id="logPMin"
+                    onChange={(e) => onLogPMinChange(e.target.value)}
                     >
                     </input>
                 </div>
@@ -87,7 +113,6 @@ const Properties = ({ logP, NumOfMolecules, onLogPChange, onNumOfMoleculesChange
                     value={NumOfMolecules}
                     id="NumOfMoleculesValue"
                     onChange={(e) => onNumOfMoleculesChange(e.target.value)}
-                    placeholder="25"
                     >
                     </input>
                 </div>
