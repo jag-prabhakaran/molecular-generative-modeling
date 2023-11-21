@@ -3,7 +3,7 @@ import { useState } from "react";
 
 export default function Home() {
   const [numMolecules, setNumMolecules] = useState(1);
-  const [rationale, setRationale] = useState("");
+  const [rationale, setRationale] = useState("OCc1cc[c:1]c(-c2ncccn2)c1");
   const [scaffold, setScaffold] = useState(
     "CC(C)(C(=O)O)c1ccc(cc1)C(O)CCCN2CCC(CC2)C(O)(*)c4ccccc4"
   );
@@ -11,7 +11,7 @@ export default function Home() {
   const [maxLogP, setMaxLogP] = useState(0);
   const [model, setModel] = useState("scaffold-constrained");
   const [fetching, setFetching] = useState(false);
-  const [apiResponse, setApiResponse] = useState("OCc1cc[c:1]c(-c2ncccn2)c1");
+  const [apiResponse, setApiResponse] = useState("");
 
   const handleNumMoleculesChange = (
     event: React.ChangeEvent<HTMLInputElement>
