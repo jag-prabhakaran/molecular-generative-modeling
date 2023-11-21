@@ -1,6 +1,6 @@
 import React from "react";
 
-const ModelDescription = () => {
+const ModelDescription = ({ description }) => {
     return (
         <div>
             <div class = "model-description" style = {{
@@ -21,18 +21,11 @@ const ModelDescription = () => {
                     <p style = {{
                         fontSize: '15px',
                         color: '#000',
-                        fontFamily: "monospace"
-                    }}>
-                        This model employs a SMILES-based Recurrent Neural Network (RNN) generative model to 
-                        achieve scaffold-constrained generation. 
-                        The model takes as inputs :
-                        <ul>
-                            <li>a molecular scaffold in the form of a SMILES string with open positions marked by * (asterisks)
-                                [there can be one or many open positions in a single scaffold SMILES string]</li>
-                            <li>the upper bound of the number of molecules to be attempted to be generated. </li>
-                        </ul>
-                        The model outputs SMILES strings for the generated molecules.
-                    </p>
+                        fontFamily: "monospace",
+                        wordWrap: "break-word"
+                    }}
+                        dangerouslySetInnerHTML={{ __html: description }}
+                    />
                 </div>
             </div>
         </div>

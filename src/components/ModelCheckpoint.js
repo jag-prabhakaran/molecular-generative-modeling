@@ -37,8 +37,8 @@ const ModelCheckpoint = ({ onModelChange }) => {
           }}
         >
           <option value="scaffold-constrained">SAMOA</option>
-          <option value="vae-gan">Graph Translation</option>
-          <option value="MolGan">MolGan</option>
+          <option value="multiobj-rationale">Graph Translation</option>
+          <option value="vae-gan">MolGan</option>
         </select>
       </div>
     </div>
