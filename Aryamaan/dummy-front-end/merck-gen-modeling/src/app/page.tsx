@@ -11,7 +11,7 @@ export default function Home() {
   const [maxLogP, setMaxLogP] = useState(0);
   const [model, setModel] = useState("scaffold-constrained");
   const [fetching, setFetching] = useState(false);
-  const [apiResponse, setApiResponse] = useState("");
+  const [apiResponse, setApiResponse] = useState("OCc1cc[c:1]c(-c2ncccn2)c1");
 
   const handleNumMoleculesChange = (
     event: React.ChangeEvent<HTMLInputElement>
