@@ -45,6 +45,8 @@ class ModelHandler(object):
         request = json.loads(request[0]['body'])
         self.scaffold_smile = request["scaffold_smile"]
         self.num_molecules = request["num_molecules"]
+        self.log_p_min = request["log_p_min"]
+        self.log_p_max = request["log_p_max"]
 
     def inference(self):
         """
