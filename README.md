@@ -1,70 +1,54 @@
-# Getting Started with Create React App
+# RDKit for JavaScript (React Examples)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The following sub-repository is dedicated to showcasing a few examples using RDKit.js with [React.js](https://reactjs.org/).
 
-## Available Scripts
+The examples are live at [react.rdkitjs.com](https://www.react.rdkitjs.com).
 
-In the project directory, you can run:
+If you didn't go through the plain javascript examples already, it is recommended to do so before going forward:
 
-### `npm start`
+- [JavaScript Examples](https://github.com/rdkit/rdkit-js/tree/master/examples/javascript)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Contributing
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+First, fork the RDKit.js GitHub repository and run the remaining instructions from your fork.
 
-### `npm test`
+### Dependencies
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Git
+- Node >= 14.x
+- Yarn 1.22.19
 
-### `npm run build`
+### Installation and local development server
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Run the following command to install the RDKit.js project.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+git clone https://github.com/<name of your fork>/rdkit-js.git && \
+cd rdkit-js && \
+yarn install
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Once the project is installed, run the following command at the root of the RDKit.js repository to start the development server:
 
-### `npm run eject`
+```bash
+npm run react:start
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+You are now ready to develop.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Contributing examples
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+All React.js examples are written in the `./examples/react/examples` folder.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+To add a new example, make sure to respect the following checklist:
 
-## Learn More
+1. [ ] Start a new git branch from the master branch and give it a meaningful name
+2. [ ] Create a new js file in the `./examples/react/examples`, give it a meaningful name, and implement your react example in this file.
+3. [ ] Import your example component in `./examples/react/index.js` and add it at the end of the examples list already present in this file.
+4. [ ] Reference your example in the SideNav.js component, again following the convention of other examples (this step will be removed in the future).
+5. [ ] Make sure your example respects the styling conventions using [Bulma](https://bulma.io/)
+6. [ ] Make sure you formatted your code with `npm run format`.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Refer to any other react example in `examples/react/examples` if you are unusure about any of the steps above.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Once you're done, make a pull request to the master branch of the main RDKit.js repository, and wait for the review!

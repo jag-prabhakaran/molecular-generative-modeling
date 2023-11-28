@@ -26,8 +26,8 @@ class MoleculeStructure extends Component {
   static defaultProps = {
     subStructure: "",
     className: "",
-    width: 250,
-    height: 200,
+    width: 350,
+    height: 300,
     svgMode: false,
     extraDetails: {},
     drawingDelay: undefined
