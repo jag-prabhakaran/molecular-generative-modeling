@@ -49,8 +49,8 @@ function App() {
       const data = {
         'model_type': selectedModel,
         'payload': {
-          'scaffold_smile': smiles,
-          'rationale': [rationale],
+          'scaffold_smile': "CC(C)(C(=O)O)c1ccc(cc1)C(O)CCCN2CCC(CC2)C(O)(*)c4ccccc4",
+          'rationale': ["OCc1cc[c:1]c(-c2ncccn2)c1"],
           'log_p_max': parseFloat(logPMin),
           'log_p_min': parseFloat(logPMax),
           'num_molecules': parseInt(NumOfMolecules)
@@ -72,6 +72,7 @@ function App() {
         case "scaffold-constrained":
           const smilesListScaffold = result.filtered_smiles.map(element => element.smile)
           const subsmileslistScaffold = result.filtered_smiles.map(element => "")
+          console.log(smilesListScaffold)
           setSMILES_LIST(smilesListScaffold)
           setsubSMILES_LIST(subsmileslistScaffold)
           break

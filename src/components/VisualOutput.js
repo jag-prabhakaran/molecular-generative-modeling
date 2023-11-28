@@ -30,7 +30,7 @@ const VisualOutput = ({ VisualData, SMILES_LIST, subSMILES_LIST }) => {
             style={{ margin: "15px", overflowX: "auto", whiteSpace: "nowrap" }}
             >
               {SMILES_LIST.map((smiles, index) => (
-                <div className="column" key={smiles}>
+                <div className="column" key={smiles + index}>
                   <MoleculeStructure
                   id={smiles}
                   structure={smiles}
