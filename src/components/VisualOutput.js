@@ -44,7 +44,7 @@ const VisualOutput = ({ VisualData, SMILES_LIST, subSMILES_LIST }) => {
                     structure={smiles}
                     height={250}
                     width={moleculeWidth}
-                    subStructure={subSMILES_LIST[index]}
+                    details={JSON.stringify({"atoms": subSMILES_LIST[index]})}
                     svgMode
                   />
                 </div>

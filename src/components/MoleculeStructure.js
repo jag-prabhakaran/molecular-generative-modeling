@@ -78,7 +78,7 @@ class MoleculeStructure extends Component {
     const isValidMol = this.isValidMol(mol);
 
     if (this.props.svgMode && isValidMol) {
-      const svg = mol.get_svg_with_highlights(this.getMolDetails(mol, qmol));
+      const svg = mol.get_svg_with_highlights(this.props.details);
       this.setState({ svg });
     } else if (isValidMol) {
       const canvas = document.getElementById(this.props.id);

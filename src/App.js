@@ -84,7 +84,7 @@ function App() {
           break
         case "multiobj-rationale":
           const smileListRationale = result.filtered_output_objects.map(element => element.output_smile)
-          const subsmilesRationale = result.filtered_output_objects.map(element => "")
+          const subsmilesRationale = result.filtered_output_objects.map(element => element.substructure_difference)
           setSMILES_LIST(smileListRationale)
           setsubSMILES_LIST(subsmilesRationale)
           break
