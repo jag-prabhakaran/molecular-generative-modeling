@@ -3,7 +3,7 @@ import React from "react";
 const ModelDescription = ({ description }) => {
     return (
         <div>
-            <div class = "model-description" style = {{
+            <div className = "model-description" style = {{
                 position: 'absolute',
                 width: '400px',
                 height: '365px',
@@ -12,7 +12,7 @@ const ModelDescription = ({ description }) => {
                 backgroundColor: '#D0C1C1',
                 borderRadius: '5px'
             }}>
-                <div class = "model-des-text" style = {{
+                <div className = "model-des-text" style = {{
                     height: '50px',
                     width: '375px',
                     left: '0.25vw',

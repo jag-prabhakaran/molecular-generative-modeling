@@ -1,8 +1,8 @@
 
 const GenerateButton = ({ onGenerate }) => {
     return (
-        <div>
-            <button id="generate" onClick={onGenerate}
+        <div className="generateButton">
+            <button onClick={onGenerate}
             style={{
                 width: "243px",
                 height: "52px",

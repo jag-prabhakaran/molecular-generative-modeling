@@ -33,12 +33,9 @@ const VisualOutput = ({ VisualData, SMILES_LIST, subSMILES_LIST }) => {
             id="structure-list"
             className="columns is-desktop"
             style={{ margin: "15px", overflowX: "auto", whiteSpace: "nowrap" }}
-          >
-            {SMILES_LIST.map((smiles, index) => {
-              // Dynamically calculate the width based on the molecule's size
-              const dynamicWidth = subSMILES_LIST[index] ? subSMILES_LIST[index].length * 10 : moleculeWidth;
-              return (
-                <div className="column" key={smiles} style={{ width: `${dynamicWidth}px`, margin: "0 10px" }}>
+            >
+              {SMILES_LIST.map((smiles, index) => (
+                <div className="column" key={smiles}>
                   <MoleculeStructure
                     id={smiles}
                     structure={smiles}
