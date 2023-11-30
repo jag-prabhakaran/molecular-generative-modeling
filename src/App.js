@@ -16,9 +16,7 @@ function App() {
   const [selectedModel, setSelectedModel] = useState('scaffold-constrained');
   const [rationale, setRationale] = useState("OCc1cc[c:1]c(-c2ncccn2)c1")
   const [description, setModelDescription] = useState('')
-  const [VisualData, setVisualOuput] = useState(false)
-  const [SMILES_LIST, setSMILES_LIST] = useState([])
-  const [subSMILES_LIST, setsubSMILES_LIST] = useState([])
+  const [apiResponse, setAPIResponse] = useState(null);
   
 
   const handleSmilesChange = (newSmiles) => {
@@ -56,41 +54,19 @@ function App() {
           'num_molecules': parseInt(NumOfMolecules)
         }
       };
-      setSMILES_LIST([])
-      setsubSMILES_LIST([])
-      setVisualOuput(true)
-      console.log('Data sent', data)
-      const response = await fetch('https://ezu74lbfo2imcxnmbblg3hkhqq0oqtxo.lambda-url.us-east-1.on.aws/', {
+      const response = await (await fetch('https://ezu74lbfo2imcxnmbblg3hkhqq0oqtxo.lambda-url.us-east-1.on.aws/', {
         method: 'POST',
         body: JSON.stringify(data),
-      });
-  
-      const result = await response.json();
-      console.log('Data sent successfully:', result);
-      
-      switch(selectedModel) {
-        case "scaffold-constrained":
-          const smilesListScaffold = result.filtered_smiles.map(element => element.smile)
-          const subsmileslistScaffold = result.filtered_smiles.map(element => "")
-          console.log(smilesListScaffold)
-          setSMILES_LIST(smilesListScaffold)
-          setsubSMILES_LIST(subsmileslistScaffold)
-          break
-        case "vae-gan":
-          const smilesListGan = result.filtered_smiles.map(element => element.smile)
-          const subsmileslistGan = result.filtered_smiles.map(element => "")
-          setSMILES_LIST(smilesListGan)
-          setsubSMILES_LIST(subsmileslistGan)
-          break
-        case "multiobj-rationale":
-          const smileListRationale = result.filtered_output_objects.map(element => element.output_smile)
-          const subsmilesRationale = result.filtered_output_objects.map(element => element.substructure_difference)
-          setSMILES_LIST(smileListRationale)
-          setsubSMILES_LIST(subsmilesRationale)
-          break
-        default:
-          return null;
+      })).json();
+
+      if(selectedModel === "multiobj-rationale"){
+        setAPIResponse(response.filtered_output_objects);
+      } else {
+        setAPIResponse(response.filtered_smiles);
       }
+
+
+      console.log('Reponse recieved successfully:', apiResponse);
     } catch (error) {
       console.error('Error sending data:', error);
     }
@@ -135,9 +111,6 @@ function App() {
     }
   }, [selectedModel])
 
-    
-  
-  
   return (
     <div className="App">
       <header className="App-header">
@@ -159,10 +132,8 @@ function App() {
         onNumOfMoleculesChange={handleNumOfMoleculesChange}
         />
         <GenerateButton onGenerate={handleGenerate}/>
-        {VisualData && <VisualOutput 
-        VisualData={VisualData} 
-        SMILES_LIST={SMILES_LIST}
-        subSMILES_LIST={subSMILES_LIST}
+        {apiResponse && <VisualOutput 
+        apiResponse={apiResponse}
         />}
       </header>
     </div>
