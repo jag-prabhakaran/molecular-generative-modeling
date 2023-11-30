@@ -17,6 +17,7 @@ function App() {
   const [rationale, setRationale] = useState("OCc1cc[c:1]c(-c2ncccn2)c1")
   const [description, setModelDescription] = useState('')
   const [apiResponse, setAPIResponse] = useState(null);
+  const [loading, setLoading] = useState(false);
   
 
   const handleSmilesChange = (newSmiles) => {
@@ -43,22 +44,25 @@ function App() {
 
 
   const handleGenerate = async () => {
+    var rationaleFixed = "OCc1cc[c:1]c(-c2ncccn2)c1";
     try {
       const data = {
         'model_type': selectedModel,
         'payload': {
-          'scaffold_smile': "CC(C)(C(=O)O)c1ccc(cc1)C(O)CCCN2CCC(CC2)C(O)(*)c4ccccc4",
-          'rationale': ["OCc1cc[c:1]c(-c2ncccn2)c1"],
+          'scaffold_smile': smiles,
+          'rationale': [rationaleFixed],
           'log_p_max': parseFloat(logPMin),
           'log_p_min': parseFloat(logPMax),
           'num_molecules': parseInt(NumOfMolecules)
         }
       };
+      console.log('Sending data:', JSON.stringify(data));
+      setLoading(true);
       const response = await (await fetch('https://ezu74lbfo2imcxnmbblg3hkhqq0oqtxo.lambda-url.us-east-1.on.aws/', {
         method: 'POST',
         body: JSON.stringify(data),
       })).json();
-
+      setLoading(false);
       if(selectedModel === "multiobj-rationale"){
         setAPIResponse(response.filtered_output_objects);
       } else {
@@ -119,6 +123,7 @@ function App() {
         />
         <ModelDescription 
         description={description}
+        loading={loading}
         />
         <JSMEContainer 
         onSmilesChange={handleSmilesChange}
@@ -131,7 +136,10 @@ function App() {
         onLogPMinChange={handleLogPMinChange}
         onNumOfMoleculesChange={handleNumOfMoleculesChange}
         />
+        <div>
         <GenerateButton onGenerate={handleGenerate}/>
+        {}
+        </div>
         {apiResponse && <VisualOutput 
         apiResponse={apiResponse}
         />}
