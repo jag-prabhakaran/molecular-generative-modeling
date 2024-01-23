@@ -12,6 +12,8 @@ function App() {
   const [smiles, setSmiles] = useState("CC(C)(C(=O)O)c1ccc(cc1)C(O)CCCN2CCC(CC2)C(O)(*)c4ccccc4");
   const [logPMax, setLogPMax] = useState('0');
   const [logPMin, setLogPMin] = useState('0');
+  const [qedMax, setQedMax] = useState('0')
+  const [qedMin, setQedMin] = useState('0')
   const [NumOfMolecules, setNumOfMolecules] = useState('5');
   const [selectedModel, setSelectedModel] = useState('scaffold-constrained');
   const [rationale, setRationale] = useState("OCc1cc[c:1]c(-c2ncccn2)c1")
@@ -37,6 +39,14 @@ function App() {
     setNumOfMolecules(newNumOfMolecules)
   };
 
+  const handleQedMaxChange = (newQedMax) => {
+    setQedMax(newQedMax);
+  };
+
+  const handleQedMinChange = (newQedMin) => {
+    setQedMin(newQedMin)
+  };
+
   const handleModelChange = (newModel) => {
     setSelectedModel(newModel);
   };
@@ -53,7 +63,9 @@ function App() {
           'rationale': [rationaleFixed],
           'log_p_max': parseFloat(logPMin),
           'log_p_min': parseFloat(logPMax),
-          'num_molecules': parseInt(NumOfMolecules)
+          'num_molecules': parseInt(NumOfMolecules),
+          'qed_max': parseFloat(qedMax),
+          'qed_min': parseFloat(qedMin)
         }
       };
       console.log('Sending data:', JSON.stringify(data));
@@ -132,9 +144,13 @@ function App() {
         logPMax={logPMax}
         logPMin={logPMin}
         NumOfMolecules={NumOfMolecules}
+        qedMax={qedMax}
+        qedMin={qedMin}
         onLogPMaxChange={handleLogPMaxChange}
         onLogPMinChange={handleLogPMinChange}
         onNumOfMoleculesChange={handleNumOfMoleculesChange}
+        onQedMaxChange={handleQedMaxChange}
+        onQedMinChange={handleQedMinChange}
         />
         <div>
         <GenerateButton onGenerate={handleGenerate}/>
