@@ -20,6 +20,8 @@ class ModelHandler(object):
         self.scaffold_smile = None
         self.log_p_min = 0
         self.log_p_max = 5
+        self.qed_max = 1
+        self.qed_min = 0
 
     def initialize(self, context):
         """
@@ -47,6 +49,8 @@ class ModelHandler(object):
         self.num_molecules = request["num_molecules"]
         self.log_p_min = request["log_p_min"]
         self.log_p_max = request["log_p_max"]
+        self.qed_max = request["qed_max"]
+        self.qed_min = request["qed_min"]
 
     def inference(self):
         """
@@ -71,10 +75,12 @@ class ModelHandler(object):
         mol_smiles = [
             {
                 "smile": Chem.MolToSmiles(mol),
-                "logP": Crippen.MolLogP(mol)
+                "logP": Crippen.MolLogP(mol),
+                "qed": Chem.QED.qed(mol),
+                "mol_weight": Chem.Descriptors.ExactMolWt(mol),
             } for mol in mols if mol is not None
         ]
-        filtered_mol_smiles = [x for x in mol_smiles if self.log_p_min <= x["logP"] <= self.log_p_max]
+        filtered_mol_smiles = filter(lambda x: x["logP"] >= self.log_p_min and x["logP"] <= self.log_p_max and x["qed"] >= self.qed_min and x["qed"] <= self.qed_max, mol_smiles)
         # return as list to keep sagemaker mms happy
         return [json.dumps({
             "smiles": mol_smiles,

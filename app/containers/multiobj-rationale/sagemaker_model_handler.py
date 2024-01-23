@@ -26,6 +26,8 @@ class ModelHandler(object):
         self.log_p_min = 0
         self.log_p_max = 5
         self.args = None
+        self.qed_max = 1
+        self.qed_min = 0
         self.rationale = []
 
     def initialize(self, context):
@@ -70,6 +72,8 @@ class ModelHandler(object):
         self.args.num_decode = self.num_molecules
         self.log_p_min = request["log_p_min"]
         self.log_p_max = request["log_p_max"]
+        self.qed_max = request["qed_max"]
+        self.qed_min = request["qed_min"]
 
     def inference(self):
         """
@@ -92,9 +96,10 @@ class ModelHandler(object):
             'input_smile': input_smile,
             'output_smile': output_smile,
             'log_p': Crippen.MolLogP(Chem.MolFromSmiles(output_smile)),
+            'qed': Chem.QED.default(Chem.MolFromSmiles(output_smile)),
+            'mol_weight': Chem.descriptors.ExactMolWt(Chem.MolFromSmiles(output_smile))
         } for input_smile, output_smiles in zip(input_smiles, model_output) for output_smile in output_smiles]
-        filtered_output_objects = [output_object for output_object in output_objects if
-                                   self.log_p_min <= output_object['log_p'] <= self.log_p_max]
+        filtered_output_objects = filter(lambda x: x["log_p"] >= self.log_p_min and x["log_p"] <= self.log_p_max and x["qed"] >= self.qed_min and x["qed"] <= self.qed_max, output_objects)
 
         # return as list to keep sagemaker mms happy
         return [
