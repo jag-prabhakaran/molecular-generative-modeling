@@ -9,9 +9,18 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.3",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.15.6",
+    "@mui/material": "^5.15.6",
     "bootstrap": "^3.4.1",
+    "ketcher-core": "^2.15.1",
+    "ketcher-react": "^2.15.1",
+    "ketcher-standalone": "^2.15.1",
+    "miew": "^0.10.1",
     "next": "14.1.0",
     "react": "^18",
+    "react-bootstrap-icons": "^1.10.3",
     "react-dom": "^18"
   },
   "devDependencies": {
