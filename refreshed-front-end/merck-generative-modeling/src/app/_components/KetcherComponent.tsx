@@ -35,7 +35,7 @@ export class KetcherComponent extends React.Component {
         structServiceProvider={structServiceProvider}
         onInit={this.handleOnInit}
         errorHandler={(error: any) => console.error(error)}
-        
+         
       />
     );
   }
