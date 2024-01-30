@@ -4,8 +4,11 @@ import { Box, CssBaseline, Toolbar } from "@mui/material";
 
 export default function Home() {
   const models = [];
-  for (let i = 0; i < 7; i++) {
-    models.push(<ModelCard />);
+  for (let i = 0; i < 3; i++) {
+    models.push(<ModelCard 
+      ModelTitle="VAE GAN"
+      ModelDescription="Nice model"
+    />);
   }
   return (
     <Box className="flex">
