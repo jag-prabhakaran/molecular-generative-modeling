@@ -7,7 +7,7 @@ export default function Home() {
   for (let i = 0; i < 3; i++) {
     models.push(<ModelCard 
       ModelTitle="VAE GAN"
-      ModelDescription="Nice model"
+      ModelDescription="simple GAN (Generative Adversarial Network) architecture that trains on small molecules (number of atoms < 9) and outputs new (small) molecules from noise."
     />);
   }
   return (
