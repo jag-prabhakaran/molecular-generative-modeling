@@ -20,17 +20,22 @@ import {
     "num_h_donors": number
   }
   
-  
+import MolRender from './MolRender';
 
-  const StructureOutput: React.FC<Molecule[]> = ({ respone }) => {
-    {respone.map((molecule: object) => {
+const StructureOutput: React.FC<{ response: Molecule[] }> = ({response}) => {
+  return (
+    <>
+      {response.map((molecule: Molecule) => {
         return (
-            <MolRender
+          <MolRender
             key={molecule.smile}
-            molecule={molecule} />
-        )
-    })}
-  };
+            molecule={molecule}
+          />
+        );
+      })}
+    </>
+  );
+};
 
 
 export default StructureOutput

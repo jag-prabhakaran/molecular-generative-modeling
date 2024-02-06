@@ -13,10 +13,12 @@ import {
   import React, { useState } from "react";
 
   const MolRender = (props : { key: string, molecule: object})  => {
-    const[key, molecule] = props
+    const{key, molecule} = props
     return (
         <Box>
             molecule
         </Box>
     )
   }
+
+  export default MolRender

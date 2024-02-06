@@ -28,16 +28,14 @@ const vaeGan: React.FC = () => {
     const [apiResponse, setApiResponse] = useState<any>(null);
 
     const handleGenerateMolecules = async () => {
-      const payload = Object.keys(propertyValues).reduce(
-        (result: { [key: string]: any }, property) => {
-          const key = propertyNameToKey[property];
-          if (key) {
-            result[key] = propertyValues[property];
-          }
-          return result;
-        },
-        {}
-      );
+      const payload = {
+        log_p_min: parseFloat(propertyValues["logP Min"]),
+        log_p_max: parseFloat(propertyValues["logP Max"]),
+        num_molecules: parseFloat(propertyValues["num molecules"]),
+        qed_min: parseFloat(propertyValues["qed Min"]),
+        qed_max: parseFloat(propertyValues["qed Max"]),
+      }
+    ;
 
       const smile = await (window as any).ketcher.getSmiles();
       //payload["scaffold_smile"] = smile;
@@ -95,6 +93,11 @@ const vaeGan: React.FC = () => {
             Generate Molecules
           </Button>
         </Box>
+        <Box className="flex flex-row justify-center">
+        {apiResponse && (
+          <StructureOutput response={apiResponse.smiles} />
+        )}
+      </Box>
       </Box>
     </Box>
   );
