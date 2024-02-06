@@ -1,6 +1,6 @@
 services:
   vae_gan:
-    image: "vae_gan:latest"
+    image: "sagemaker-vae-gan:latest"
     build:
         context: ./vae_gan/
         dockerfile: Dockerfile
@@ -9,7 +9,7 @@ services:
     ports:
       -  "5004:5000"
   scaffold_constrained:
-    image: "scaffold_constrained:latest"
+    image: "sagemaker-scaffold-constrained:latest"
     cpu_count: 2
     build:
       context: ./scaffold_constrained/
@@ -18,12 +18,21 @@ services:
         - linux/amd64
     ports:
       - "5005:5000"
-  web_server:
-    image: "web_server:latest"
+  multi_objective:
+    image: "sagemaker-multiobj-rationale:latest"
     build:
-      context: ./web_server/
+      context: ./multiobj-rationale
       dockerfile: Dockerfile
       platforms:
         - linux/amd64
     ports:
-      - "5008:5000"
+      - "5006:5000"
+  # web_server:
+  #   image: "web_server:latest"
+  #   build:
+  #     context: ./web_server/
+  #     dockerfile: Dockerfile
+  #     platforms:
+  #       - linux/amd64
+  #   ports:
+  #     - "5008:5000"

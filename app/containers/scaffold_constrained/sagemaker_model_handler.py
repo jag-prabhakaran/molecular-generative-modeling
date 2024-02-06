@@ -2,6 +2,9 @@ import os.path
 import json
 from rdkit import Chem
 from rdkit.Chem import Crippen
+from rdkit.Chem import QED
+from rdkit.Chem import Descriptors as descriptors
+from rdkit.Chem import Lipinski
 from model_files.scaffold_constrained_model import scaffold_constrained_RNN
 from model_files.data_structs import Vocabulary
 import torch
@@ -76,11 +79,12 @@ class ModelHandler(object):
             {
                 "smile": Chem.MolToSmiles(mol),
                 "logP": Crippen.MolLogP(mol),
-                "qed": Chem.QED.qed(mol),
-                "mol_weight": Chem.Descriptors.ExactMolWt(mol),
+                "qed": QED.qed(mol),
+                "mol_weight": descriptors.ExactMolWt(mol),
+                "num_h_donors": Lipinski.NumHDonors(mol),
             } for mol in mols if mol is not None
         ]
-        filtered_mol_smiles = filter(lambda x: x["logP"] >= self.log_p_min and x["logP"] <= self.log_p_max and x["qed"] >= self.qed_min and x["qed"] <= self.qed_max, mol_smiles)
+        filtered_mol_smiles = list(filter(lambda x: x["logP"] >= self.log_p_min and x["logP"] <= self.log_p_max and x["qed"] >= self.qed_min and x["qed"] <= self.qed_max, mol_smiles))
         # return as list to keep sagemaker mms happy
         return [json.dumps({
             "smiles": mol_smiles,
