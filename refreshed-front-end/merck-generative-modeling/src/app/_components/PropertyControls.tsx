@@ -24,9 +24,12 @@ const PropertyControls: React.FC<PropertyControlProps> = (props) => {
     "num molecules",
     "qed Min",
     "qed Max",
-    "more fake properties",
-    "more fake properties",
-    "more fake properties",
+    "solubility @ ph7",
+    "FaSSIF solubility",
+    "num H donors",
+    "HPLC logD",
+    "membrane permeability",
+    "blood/brain barrier permeability"
   ];
 
 

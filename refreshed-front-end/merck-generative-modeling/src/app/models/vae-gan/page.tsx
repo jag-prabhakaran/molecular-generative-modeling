@@ -11,13 +11,14 @@ import {
 } from "@mui/material";
 import KetcherComponent from "@/app/_components/KetcherComponent";
 import PropertyControls from "@/app/_components/PropertyControls";
+import StructureOutput from "@/app/_components/StructureOuptut";
 
 const propertyNameToKey: { [key: string]: string } = {
   "logP Min": "log_p_min",
   "logP Max": "log_p_max",
   "num molecules": "num_molecules",
-//   "qed Min": "qed_min",
-//   "qed Max": "qed_max",
+  "qed Min": "qed_min",
+  "qed Max": "qed_max",
 };
 
 const vaeGan: React.FC = () => {
@@ -39,7 +40,7 @@ const vaeGan: React.FC = () => {
       );
 
       const smile = await (window as any).ketcher.getSmiles();
-    //   payload["scaffold_smile"] = smile;
+      //payload["scaffold_smile"] = smile;
       const data = {
         model_type: "vae-gan",
         payload,
