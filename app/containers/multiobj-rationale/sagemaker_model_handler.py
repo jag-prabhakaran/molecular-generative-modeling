@@ -2,6 +2,9 @@ import os.path
 import json
 from rdkit import Chem
 from rdkit.Chem import Crippen
+from rdkit.Chem import QED
+from rdkit.Chem import Descriptors as descriptors
+from rdkit.Chem import Lipinski
 import torch
 import random
 import sys
@@ -96,10 +99,11 @@ class ModelHandler(object):
             'input_smile': input_smile,
             'output_smile': output_smile,
             'log_p': Crippen.MolLogP(Chem.MolFromSmiles(output_smile)),
-            'qed': Chem.QED.default(Chem.MolFromSmiles(output_smile)),
-            'mol_weight': Chem.descriptors.ExactMolWt(Chem.MolFromSmiles(output_smile))
+            'qed': QED.default(Chem.MolFromSmiles(output_smile)),
+            'mol_weight': descriptors.ExactMolWt(Chem.MolFromSmiles(output_smile)),
+            'num_h_donors': Lipinski.NumHDonors(Chem.MolFromSmiles(output_smile))
         } for input_smile, output_smiles in zip(input_smiles, model_output) for output_smile in output_smiles]
-        filtered_output_objects = filter(lambda x: x["log_p"] >= self.log_p_min and x["log_p"] <= self.log_p_max and x["qed"] >= self.qed_min and x["qed"] <= self.qed_max, output_objects)
+        filtered_output_objects = list(filter(lambda x: x["log_p"] >= self.log_p_min and x["log_p"] <= self.log_p_max and x["qed"] >= self.qed_min and x["qed"] <= self.qed_max, output_objects))
 
         # return as list to keep sagemaker mms happy
         return [

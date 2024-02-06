@@ -1,11 +1,14 @@
 import os.path
 import json
-from dev_models.Evaluation_Metrics.properties import molecular_weight
 from tensorflow import keras
 import tensorflow as tf
 from rdkit import Chem
 from rdkit.Chem import Crippen
+from rdkit.Chem import QED
+from rdkit.Chem import Descriptors as descriptors
+from rdkit.Chem import Lipinski
 from generator import GraphWGAN, generator, discriminator, graph_to_molecule
+
 
 
 class ModelHandler(object):
@@ -80,11 +83,12 @@ class ModelHandler(object):
             {
                 "smile": Chem.MolToSmiles(mol),
                 "logP": Crippen.MolLogP(mol),
-                "qed": Chem.QED.default(mol),
-                "mol_weight": Chem.descriptors.ExactMolWt(mol)
+                "qed": QED.default(mol),
+                "mol_weight": descriptors.ExactMolWt(mol),
+                "num_h_donors": Lipinski.NumHDonors(mol)
             } for mol in model_output if mol is not None
         ]
-        filtered_smiles = filter(lambda x: x["logP"] >= self.log_p_min and x["logP"] <= self.log_p_max and x["qed"] >= self.qed_min and x["qed"] <= self.qed_max, smiles_list)
+        filtered_smiles = list(filter(lambda x: x["logP"] >= self.log_p_min and x["logP"] <= self.log_p_max and x["qed"] >= self.qed_min and x["qed"] <= self.qed_max, smiles_list))
         # return as list to keep sagemaker mms happy
         return [json.dumps({
             'smiles': smiles_list,
