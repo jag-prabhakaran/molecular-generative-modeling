@@ -12,6 +12,7 @@ import {
 import KetcherComponent from "@/app/_components/KetcherComponent";
 import PropertyControls from "@/app/_components/PropertyControls";
 import StructureOutput from "@/app/_components/StructureOuptut";
+import MolRender from "@/app/_components/MolRender";
 
 const propertyNameToKey: { [key: string]: string } = {
   "logP Min": "log_p_min",
@@ -22,46 +23,42 @@ const propertyNameToKey: { [key: string]: string } = {
 };
 
 const vaeGan: React.FC = () => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [apiResponse, setApiResponse] = useState<any>(null);
 
-
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [apiResponse, setApiResponse] = useState<any>(null);
-
-    const handleGenerateMolecules = async () => {
-      const payload = {
-        log_p_min: parseFloat(propertyValues["logP Min"]),
-        log_p_max: parseFloat(propertyValues["logP Max"]),
-        num_molecules: parseFloat(propertyValues["num molecules"]),
-        qed_min: parseFloat(propertyValues["qed Min"]),
-        qed_max: parseFloat(propertyValues["qed Max"]),
-      }
-    ;
-
-      const smile = await (window as any).ketcher.getSmiles();
-      //payload["scaffold_smile"] = smile;
-      const data = {
-        model_type: "vae-gan",
-        payload,
-      };
-
-      console.log("Sending payload", data);
-      const response = await (
-        await fetch(
-          "https://ezu74lbfo2imcxnmbblg3hkhqq0oqtxo.lambda-url.us-east-1.on.aws/",
-          {
-            method: "POST",
-            body: JSON.stringify(data),
-          }
-        )
-      );
-      setApiResponse(response.text());
-        console.log(apiResponse);
+  const handleGenerateMolecules = async () => {
+    const payload = {
+      log_p_min: parseFloat(propertyValues["logP Min"]),
+      log_p_max: parseFloat(propertyValues["logP Max"]),
+      num_molecules: parseFloat(propertyValues["num molecules"]),
+      qed_min: parseFloat(propertyValues["qed Min"]),
+      qed_max: parseFloat(propertyValues["qed Max"]),
     };
+    const smile = await (window as any).ketcher.getSmiles();
+    //payload["scaffold_smile"] = smile;
+    const data = {
+      model_type: "vae-gan",
+      payload,
+    };
+
+    console.log("Sending payload", data);
+    const response = await fetch(
+      "https://ezu74lbfo2imcxnmbblg3hkhqq0oqtxo.lambda-url.us-east-1.on.aws/",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+    setApiResponse(await response.json());
+    console.log(apiResponse);
+  };
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [propertyValues, setPropertyValues] = useState<{
     [key: string]: string;
   }>({});
+
+  const aspring = "CC(=O)OC1=CC=CC=C1C(=O)O";
 
   const handlePropertyChange = (property: string, value: string) => {
     setPropertyValues((prevValues) => ({
@@ -94,10 +91,8 @@ const vaeGan: React.FC = () => {
           </Button>
         </Box>
         <Box className="flex flex-row justify-center">
-        {apiResponse && (
-          <StructureOutput response={apiResponse.smiles} />
-        )}
-      </Box>
+          {apiResponse && <StructureOutput response={apiResponse.smiles} />}
+        </Box>
       </Box>
     </Box>
   );
