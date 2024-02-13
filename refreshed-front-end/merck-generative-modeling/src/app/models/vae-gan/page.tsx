@@ -80,6 +80,11 @@ const vaeGan: React.FC = () => {
             <Button variant="contained" onClick={handleGenerateMolecules} style={{ marginBottom: '20px' }}>
               Generate Molecules
             </Button>
+            {apiResponse && (
+          <Box className="flex flex-row justify-center flex-wrap">
+            <StructureOutput response={apiResponse.smiles} />
+          </Box>
+        )}
           </Box>
           <Card className="w-3/12 p-3 overflow-scroll">
             <PropertyControls
@@ -88,11 +93,7 @@ const vaeGan: React.FC = () => {
             />
           </Card>
         </Box>
-        {apiResponse && (
-          <Box className="flex flex-row justify-center">
-            <StructureOutput response={apiResponse.smiles} />
-          </Box>
-        )}
+        
       </Box>
     </Box>
   );

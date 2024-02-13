@@ -85,7 +85,7 @@ const singlePropertyControl = (property: string) => {
             value={props.propertyValues[property] ? Number(props.propertyValues[property]) : 5}
             onChange={(e, value) => props.handlePropertyChange(property, String(value))}
             aria-labelledby={`slider-${property}`}
-            min={1}
+            min={0}
             max={10}
             valueLabelDisplay="auto"
           />
