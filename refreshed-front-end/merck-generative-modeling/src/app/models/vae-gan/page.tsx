@@ -73,10 +73,13 @@ const vaeGan: React.FC = () => {
       <MerckNavbar />
       <Box component="main" className="flex flex-col flex-grow">
         <Toolbar />
-        <Box className="flex flex-row justify-evenly">
-          <Box className="w-8/12 p-3" style={{ height: "50vh" }}>
-            <KetcherComponent />
-            {/* <Box className='w-full h-full' bgcolor="red"></Box> */}
+        <Box className="flex flex-row justify-evenly">          
+          <Box className="w-8/12 p-3" style={{ height: "50vh" }}> {/* Keep the existing height */}
+          <KetcherComponent />
+          <Box style={{ height: '20px' }}></Box> 
+            <Button variant="contained" onClick={handleGenerateMolecules} style={{ marginBottom: '20px' }}>
+              Generate Molecules
+            </Button>
           </Box>
           <Card className="w-3/12 p-3 overflow-scroll">
             <PropertyControls
@@ -85,17 +88,15 @@ const vaeGan: React.FC = () => {
             />
           </Card>
         </Box>
-        <Box className="flex flex-row justify-center">
-          <Button variant="contained" onClick={handleGenerateMolecules}>
-            Generate Molecules
-          </Button>
-        </Box>
-        <Box className="flex flex-row justify-center">
-          {apiResponse && <StructureOutput response={apiResponse.smiles} />}
-        </Box>
+        {apiResponse && (
+          <Box className="flex flex-row justify-center">
+            <StructureOutput response={apiResponse.smiles} />
+          </Box>
+        )}
       </Box>
     </Box>
   );
 };
+
 
 export default vaeGan;
