@@ -89,7 +89,18 @@ const singlePropertyControl = (property: string) => {
             max={10}
             valueLabelDisplay="auto"
           />
-          <Button size="small" onClick={() => props.handlePropertyChange(property, "5")}>Reset</Button>
+          <Input
+          value={props.propertyValues[property] ? Number(props.propertyValues[property]) : 5}
+          size="small"
+          onChange={(e) => props.handlePropertyChange(property, e.target.value)}
+          inputProps={{
+            step: 1,
+            min: 0,
+            max: 10,
+            type: 'number',
+            'aria-labelledby': 'slider-'+property
+          }}
+          />
         </Box>
       );
     } else {

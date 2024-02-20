@@ -27,17 +27,19 @@ const vaeGan: React.FC = () => {
   const [apiResponse, setApiResponse] = useState<any>(null);
 
   const handleGenerateMolecules = async () => {
+    const smile = await (window as any).ketcher.getSmiles();
     const payload = {
       log_p_min: parseFloat(propertyValues["logP Min"]),
       log_p_max: parseFloat(propertyValues["logP Max"]),
       num_molecules: parseFloat(propertyValues["num molecules"]),
       qed_min: parseFloat(propertyValues["qed Min"]),
       qed_max: parseFloat(propertyValues["qed Max"]),
+      rationale: smile
     };
-    const smile = await (window as any).ketcher.getSmiles();
+
     //payload["scaffold_smile"] = smile;
     const data = {
-      model_type: "vae-gan",
+      model_type: "multiobj-rationale",
       payload,
     };
 

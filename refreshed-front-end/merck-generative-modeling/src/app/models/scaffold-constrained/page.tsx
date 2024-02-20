@@ -27,17 +27,19 @@ const vaeGan: React.FC = () => {
   const [apiResponse, setApiResponse] = useState<any>(null);
 
   const handleGenerateMolecules = async () => {
+    const smile = await (window as any).ketcher.getSmiles();
     const payload = {
       log_p_min: parseFloat(propertyValues["logP Min"]),
       log_p_max: parseFloat(propertyValues["logP Max"]),
       num_molecules: parseFloat(propertyValues["num molecules"]),
       qed_min: parseFloat(propertyValues["qed Min"]),
       qed_max: parseFloat(propertyValues["qed Max"]),
+      scaffold_smile: "CC(C)(C(=O)O)c1ccc(cc1)C(O)CCCN2CCC(CC2)C(O)(*)c4ccccc4"
     };
-    const smile = await (window as any).ketcher.getSmiles();
-    //payload["scaffold_smile"] = smile;
+    
+    
     const data = {
-      model_type: "vae-gan",
+      model_type: "scaffold-constrained",
       payload,
     };
 

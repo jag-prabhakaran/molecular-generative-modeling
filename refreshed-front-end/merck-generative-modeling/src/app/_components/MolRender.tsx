@@ -20,6 +20,18 @@ const MolRender = (props: { key: string; molecule: Molecule }) => {
   return (
     <Box>
       <MoleculeStructure structure={molecule.smile} id={molecule.smile} />
+      <Typography>
+        LogP: {molecule.logP} 
+      </Typography>
+      <Typography>
+      QED score: {molecule.qed}
+      </Typography>
+      <Typography>
+      Molecular Weight: {molecule.mol_weight}
+      </Typography>
+      <Typography>
+      Mumber of H donors: {molecule.num_h_donors}
+      </Typography>
     </Box>
   );
 };
