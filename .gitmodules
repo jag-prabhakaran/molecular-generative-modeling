@@ -1,0 +1,3 @@
+[submodule "prop_pred/p_chem_CEVR"]
+	path = prop_pred/p_chem_CEVR
+	url = https://github.com/jamesleocodes/p_chem_CEVR.git
