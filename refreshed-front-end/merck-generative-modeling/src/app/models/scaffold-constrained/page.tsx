@@ -13,6 +13,7 @@ import KetcherComponent from "@/app/_components/KetcherComponent";
 import PropertyControls from "@/app/_components/PropertyControls";
 import StructureOutput from "@/app/_components/StructureOuptut";
 import MolRender from "@/app/_components/MolRender";
+import Molecule from "@/app/_components/MoleculeType";
 
 const propertyNameToKey: { [key: string]: string } = {
   "logP Min": "log_p_min",
@@ -34,10 +35,16 @@ const vaeGan: React.FC = () => {
       num_molecules: parseFloat(propertyValues["num molecules"]),
       qed_min: parseFloat(propertyValues["qed Min"]),
       qed_max: parseFloat(propertyValues["qed Max"]),
-      scaffold_smile: "CC(C)(C(=O)O)c1ccc(cc1)C(O)CCCN2CCC(CC2)C(O)(*)c4ccccc4"
+      scaffold_smile: smile.replaceAll(":", ""),
     };
-    
-    
+
+    function removeDuplicateMols(array: [Molecule]) {
+      const uniqueObjects = new Set(
+        array.map((obj: any) => JSON.stringify(obj))
+      );
+      return Array.from(uniqueObjects).map((str) => JSON.parse(str));
+    }
+
     const data = {
       model_type: "scaffold-constrained",
       payload,
@@ -51,7 +58,9 @@ const vaeGan: React.FC = () => {
         body: JSON.stringify(data),
       }
     );
-    setApiResponse(await response.json());
+    const res_json = await response.json();
+    res_json.filtered_smiles = removeDuplicateMols(res_json.filtered_smiles);
+    setApiResponse(res_json);
     console.log(apiResponse);
   };
 
@@ -75,18 +84,24 @@ const vaeGan: React.FC = () => {
       <MerckNavbar />
       <Box component="main" className="flex flex-col flex-grow">
         <Toolbar />
-        <Box className="flex flex-row justify-evenly">          
-          <Box className="w-8/12 p-3" style={{ height: "50vh" }}> {/* Keep the existing height */}
-          <KetcherComponent />
-          <Box style={{ height: '20px' }}></Box> 
-            <Button variant="contained" onClick={handleGenerateMolecules} style={{ marginBottom: '20px' }}>
+        <Box className="flex flex-row justify-evenly">
+          <Box className="w-8/12 p-3" style={{ height: "50vh" }}>
+            {" "}
+            {/* Keep the existing height */}
+            <KetcherComponent />
+            <Box style={{ height: "20px" }}></Box>
+            <Button
+              variant="contained"
+              onClick={handleGenerateMolecules}
+              style={{ marginBottom: "20px" }}
+            >
               Generate Molecules
             </Button>
             {apiResponse && (
-          <Box className="flex flex-row justify-center flex-wrap">
-            <StructureOutput response={apiResponse.filtered_smiles} />
-          </Box>
-        )}
+              <Box className="flex flex-row justify-center flex-wrap">
+                <StructureOutput response={apiResponse.filtered_smiles} />
+              </Box>
+            )}
           </Box>
           <Card className="w-3/12 p-3 overflow-scroll">
             <PropertyControls
@@ -95,11 +110,9 @@ const vaeGan: React.FC = () => {
             />
           </Card>
         </Box>
-        
       </Box>
     </Box>
   );
 };
-
 
 export default vaeGan;

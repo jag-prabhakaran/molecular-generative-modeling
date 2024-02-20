@@ -51,29 +51,19 @@ const PropertyControls: React.FC<PropertyControlProps> = (props) => {
   );
 };*/
 
-
 interface PropertyControlProps {
   propertyValues: { [key: string]: string };
   handlePropertyChange: (property: string, value: string) => void;
 }
 
 const PropertyControls = (props: PropertyControlProps) => {
-  const textFieldProperties = [
-    "num molecules",
-    "solubility @ ph7",
-    "FaSSIF solubility",
-    "num H donors",
-    "HPLC logD",
-    "membrane permeability",
-    "blood/brain barrier permeability"
-  ];
+  const textFieldProperties = [];
 
-const sliderProperties = ['logP Min', 'logP Max', 'qed Min', 'qed Max'];
+  const sliderProperties = ["logP Min", "logP Max", "qed Min", "qed Max"];
 
-const combinedProperties = [...textFieldProperties, ...sliderProperties];
+  const combinedProperties = [...textFieldProperties, ...sliderProperties];
 
-
-const singlePropertyControl = (property: string) => {
+  const singlePropertyControl = (property: string) => {
     // Check if the current property should use a slider
     if (sliderProperties.includes(property)) {
       return (
@@ -81,25 +71,40 @@ const singlePropertyControl = (property: string) => {
           <Typography id={`slider-${property}`} gutterBottom>
             {property}
           </Typography>
-          <Slider
-            value={props.propertyValues[property] ? Number(props.propertyValues[property]) : 5}
-            onChange={(e, value) => props.handlePropertyChange(property, String(value))}
-            aria-labelledby={`slider-${property}`}
-            min={0}
-            max={10}
-            valueLabelDisplay="auto"
-          />
+          <Box className="w-1/2 mx-2">
+            <Slider
+              value={
+                props.propertyValues[property]
+                  ? Number(props.propertyValues[property])
+                  : 0
+              }
+              onChange={(e, value) =>
+                props.handlePropertyChange(property, String(value))
+              }
+              aria-labelledby={`slider-${property}`}
+              step={0.1}
+              min={0}
+              max={property == "qed Min" || property == "qed Max" ? 1 : 10}
+              valueLabelDisplay="auto"
+            />
+          </Box>
           <Input
-          value={props.propertyValues[property] ? Number(props.propertyValues[property]) : 5}
-          size="small"
-          onChange={(e) => props.handlePropertyChange(property, e.target.value)}
-          inputProps={{
-            step: 1,
-            min: 0,
-            max: 10,
-            type: 'number',
-            'aria-labelledby': 'slider-'+property
-          }}
+            value={
+              props.propertyValues[property]
+                ? Number(props.propertyValues[property])
+                : 5
+            }
+            size="small"
+            onChange={(e) =>
+              props.handlePropertyChange(property, e.target.value)
+            }
+            inputProps={{
+              step: 1,
+              min: 0,
+              max: 10,
+              type: "number",
+              "aria-labelledby": "slider-" + property,
+            }}
           />
         </Box>
       );
@@ -112,7 +117,9 @@ const singlePropertyControl = (property: string) => {
             label={property}
             variant="outlined"
             value={props.propertyValues[property] || ""}
-            onChange={(e) => props.handlePropertyChange(property, e.target.value)}
+            onChange={(e) =>
+              props.handlePropertyChange(property, e.target.value)
+            }
           />
           <Button size="small">Reset</Button>
         </Box>
@@ -121,11 +128,8 @@ const singlePropertyControl = (property: string) => {
   };
 
   return (
-    <>
-      {combinedProperties.map((property) => singlePropertyControl(property))}
-    </>
+    <>{combinedProperties.map((property) => singlePropertyControl(property))}</>
   );
 };
-
 
 export default PropertyControls;

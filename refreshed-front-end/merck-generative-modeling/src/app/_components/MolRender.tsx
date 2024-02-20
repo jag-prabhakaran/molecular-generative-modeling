@@ -16,21 +16,20 @@ import MoleculeStructure from "./MoleculeStructure";
 import Molecule from "./MoleculeType";
 
 const MolRender = (props: { key: string; molecule: Molecule }) => {
+  const round = (value: number) => Math.round(value * 1000) / 1000;
   const { key, molecule } = props;
   return (
     <Box>
-      <MoleculeStructure structure={molecule.smile} id={molecule.smile} />
+      <MoleculeStructure
+        structure={molecule.smile}
+        id={molecule.smile}
+        svgMode={true}
+      />
+      <Typography>LogP: {round(molecule.logP)}</Typography>
+      <Typography>QED score: {round(molecule.qed)}</Typography>
+      <Typography>Molecular Weight: {round(molecule.mol_weight)}</Typography>
       <Typography>
-        LogP: {molecule.logP} 
-      </Typography>
-      <Typography>
-      QED score: {molecule.qed}
-      </Typography>
-      <Typography>
-      Molecular Weight: {molecule.mol_weight}
-      </Typography>
-      <Typography>
-      Mumber of H donors: {molecule.num_h_donors}
+        Number of H donors: {round(molecule.num_h_donors)}
       </Typography>
     </Box>
   );
