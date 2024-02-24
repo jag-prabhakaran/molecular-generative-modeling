@@ -57,7 +57,7 @@ interface PropertyControlProps {
 }
 
 const PropertyControls = (props: PropertyControlProps) => {
-  const textFieldProperties = [];
+  const textFieldProperties = ["num molecules"];
 
   const sliderProperties = ["logP Min", "logP Max", "qed Min", "qed Max"];
 
