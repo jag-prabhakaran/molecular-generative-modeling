@@ -52,14 +52,14 @@ const PropertyControls: React.FC<PropertyControlProps> = (props) => {
 };*/
 
 interface PropertyControlProps {
-  propertyValues: { [key: string]: string };
+  propertyValues: { [key: string]: string }
   handlePropertyChange: (property: string, value: string) => void;
 }
 
 const PropertyControls = (props: PropertyControlProps) => {
   const textFieldProperties = ["num molecules"];
 
-  const sliderProperties = ["logP Min", "logP Max", "qed Min", "qed Max"];
+  const sliderProperties = ["logP", "qed"];
 
   const combinedProperties = [...textFieldProperties, ...sliderProperties];
 
@@ -67,45 +67,65 @@ const PropertyControls = (props: PropertyControlProps) => {
     // Check if the current property should use a slider
     if (sliderProperties.includes(property)) {
       return (
-        <Box className="flex flex-grow flex-row align-middle justify-center p-2">
+        <Box className="flex flex-grow flex-col align-middle justify-center p-2">
           <Typography id={`slider-${property}`} gutterBottom>
             {property}
           </Typography>
+          <Box className="flex flex-row align middle justify-center p-2">
+          <Input
+            className="pr-5"
+            value={props.propertyValues[`${property} Min`] || 0}
+            size="small"
+            onChange={(e) =>
+              props.handlePropertyChange(`${property} Min`, e.target.value)
+            }
+            inputProps={{
+              step: 0.1,
+              min: 0,
+              max: property === "qed" ? 1 : 10,
+              type: "number",
+              "aria-labelledby": "input-" + property + "min",
+            }}
+          />
           <Box className="w-1/2 mx-2">
             <Slider
-              value={
-                props.propertyValues[property]
-                  ? Number(props.propertyValues[property])
-                  : 0
-              }
-              onChange={(e, value) =>
-                props.handlePropertyChange(property, String(value))
-              }
+              value={[
+                props.propertyValues[`${property} Min`]
+                  ? Number(props.propertyValues[`${property} Min`])
+                  : 0,
+                props.propertyValues[`${property} Max`]
+                  ? Number(props.propertyValues[`${property} Max`])
+                  : (property === 'qed' ? 1 : 10)
+              ]}
+              onChange={(e, value) => {
+                const [min,max] = value as number[]
+                props.handlePropertyChange(`${property} Min`, String(min))
+                props.handlePropertyChange(`${property} Max`, String(max))
+              }}
               aria-labelledby={`slider-${property}`}
               step={0.1}
               min={0}
-              max={property == "qed Min" || property == "qed Max" ? 1 : 10}
+              max={property === "qed" ? 1 : 10}
               valueLabelDisplay="auto"
+              disableSwap
             />
           </Box>
           <Input
-            value={
-              props.propertyValues[property]
-                ? Number(props.propertyValues[property])
-                : 5
-            }
+            className="pl-5"
+            value={props.propertyValues[`${property} Max`] || (property === 'qed' ? 1 : 10)}
             size="small"
             onChange={(e) =>
-              props.handlePropertyChange(property, e.target.value)
+              props.handlePropertyChange(`${property} Max`, e.target.value)
             }
             inputProps={{
-              step: 1,
+              step: 0.1,
               min: 0,
-              max: 10,
+              max: property === "qed" ? 1 : 10,
               type: "number",
-              "aria-labelledby": "slider-" + property,
+              "aria-labelledby": "input-" + property + "max"
             }}
           />
+          </Box>
         </Box>
       );
     } else {

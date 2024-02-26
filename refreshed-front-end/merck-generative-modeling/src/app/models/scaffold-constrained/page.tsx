@@ -65,9 +65,13 @@ const vaeGan: React.FC = () => {
   };
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [propertyValues, setPropertyValues] = useState<{
-    [key: string]: string;
-  }>({});
+  const [propertyValues, setPropertyValues] = useState({
+    'logP Min': '0',
+    'logP Max': '10',
+    'qed Min': '0',
+    'qed Max': '1',
+    'num molecules': '10'
+  });
 
   const aspring = "CC(=O)OC1=CC=CC=C1C(=O)O";
 
