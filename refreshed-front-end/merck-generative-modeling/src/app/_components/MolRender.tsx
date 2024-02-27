@@ -15,16 +15,29 @@ import React, { HTMLAttributes, useState } from "react";
 import MoleculeStructure from "./MoleculeStructure";
 import Molecule from "./MoleculeType";
 
-const MolRender = (props: { key: string; molecule: Molecule }) => {
+const MolRender = (props: {
+  key: string;
+  molecule: Molecule;
+  isMultiObj: boolean;
+}) => {
   const round = (value: number) => Math.round(value * 1000) / 1000;
   const { key, molecule } = props;
   return (
     <Box>
-      <MoleculeStructure
-        structure={molecule.smile}
-        id={molecule.smile}
-        svgMode={true}
-      />
+      {props.isMultiObj ? (
+        <MoleculeStructure
+          structure={molecule.output_smile}
+          id={molecule.smile}
+          svgMode={true}
+        />
+      ) : (
+        <MoleculeStructure
+          structure={molecule.smile}
+          id={molecule.smile}
+          svgMode={true}
+        />
+      )}
+
       <Typography>LogP: {round(molecule.logP)}</Typography>
       <Typography>QED score: {round(molecule.qed)}</Typography>
       <Typography>Molecular Weight: {round(molecule.mol_weight)}</Typography>

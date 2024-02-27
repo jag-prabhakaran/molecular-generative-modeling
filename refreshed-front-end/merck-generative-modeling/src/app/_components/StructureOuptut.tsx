@@ -15,12 +15,31 @@ import Molecule from "./MoleculeType";
 
 import MolRender from "./MolRender";
 
-const StructureOutput: React.FC<{ response: Molecule[] }> = ({ response }) => {
+const StructureOutput: React.FC<{
+  response: Molecule[];
+  isMultiObj: boolean;
+}> = ({ response, isMultiObj }) => {
   return (
     <>
-      {response.map((molecule: Molecule) => {
-        return <MolRender key={molecule.smile} molecule={molecule} />;
-      })}
+      {isMultiObj
+        ? response.map((molecule: Molecule) => {
+            return (
+              <MolRender
+                key={molecule.output_smile}
+                molecule={molecule}
+                isMultiObj={true}
+              />
+            );
+          })
+        : response.map((molecule: Molecule) => {
+            return (
+              <MolRender
+                key={molecule.smile}
+                molecule={molecule}
+                isMultiObj={false}
+              />
+            );
+          })}
     </>
   );
 };

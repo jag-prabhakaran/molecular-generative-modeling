@@ -1,4 +1,5 @@
 interface Molecule {
+    output_smile: string
     get_substruct_matches(qmol: Molecule): string
     "smile": string,
     "logP": number,
