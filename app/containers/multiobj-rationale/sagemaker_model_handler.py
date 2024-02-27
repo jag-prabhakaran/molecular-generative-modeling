@@ -45,20 +45,22 @@ class ModelHandler(object):
             model="ckpt/chembl-h400beta0.3/model.20",
             num_decode=100,
             seed=1,
-            rnn_type='LSTM',
+            rnn_type="LSTM",
             hidden_size=400,
             embed_size=400,
             batch_size=20,
             latent_size=20,
             depth=10,
-            diter=3
+            diter=3,
         )
         self.args = args
         random.seed(1)
         self.model = AtomVGNN(args).cpu()
         model_dir = context.system_properties.get("model_dir")
-        model_ckpt = torch.load(os.path.join(model_dir, args.model), map_location=torch.device('cpu'))
-        print('loading pre-trained model', file=sys.stderr)
+        model_ckpt = torch.load(
+            os.path.join(model_dir, args.model), map_location=torch.device("cpu")
+        )
+        print("loading pre-trained model", file=sys.stderr)
         self.model.load_state_dict(model_ckpt)
         self.model.eval()
         torch.manual_seed(args.seed)
@@ -69,7 +71,7 @@ class ModelHandler(object):
         :param request: JSON string of request payload.
         :return: list of preprocessed model input
         """
-        request = json.loads(request[0]['body'])
+        request = json.loads(request[0]["body"])
         self.rationale = request["rationale"]
         self.num_molecules = request["num_molecules"]
         self.args.num_decode = self.num_molecules
@@ -83,8 +85,19 @@ class ModelHandler(object):
         Internal inference method
         :return:
         """
-        dataset = SubgraphDataset(self.rationale, self.args.atom_vocab, self.args.batch_size, self.args.num_decode)
-        loader = DataLoader(dataset, batch_size=1, shuffle=False, num_workers=0, collate_fn=lambda x: x[0])
+        dataset = SubgraphDataset(
+            self.rationale,
+            self.args.atom_vocab,
+            self.args.batch_size,
+            self.args.num_decode,
+        )
+        loader = DataLoader(
+            dataset,
+            batch_size=1,
+            shuffle=False,
+            num_workers=0,
+            collate_fn=lambda x: x[0],
+        )
         with torch.no_grad():
             return [self.model.decode(init_smiles) for init_smiles in loader]
 
@@ -95,22 +108,34 @@ class ModelHandler(object):
         :return: Output after post-processing step
         """
         input_smiles = self.rationale
-        output_objects = [{
-            'input_smile': input_smile,
-            'output_smile': output_smile,
-            'log_p': Crippen.MolLogP(Chem.MolFromSmiles(output_smile)),
-            'qed': QED.default(Chem.MolFromSmiles(output_smile)),
-            'mol_weight': descriptors.ExactMolWt(Chem.MolFromSmiles(output_smile)),
-            'num_h_donors': Lipinski.NumHDonors(Chem.MolFromSmiles(output_smile))
-        } for input_smile, output_smiles in zip(input_smiles, model_output) for output_smile in output_smiles]
-        filtered_output_objects = list(filter(lambda x: x["log_p"] >= self.log_p_min and x["log_p"] <= self.log_p_max and x["qed"] >= self.qed_min and x["qed"] <= self.qed_max, output_objects))
+        output_objects = [
+            {
+                "input_smile": input_smile,
+                "output_smile": output_smile,
+                "logP": Crippen.MolLogP(Chem.MolFromSmiles(output_smile)),
+                "qed": QED.default(Chem.MolFromSmiles(output_smile)),
+                "mol_weight": descriptors.ExactMolWt(Chem.MolFromSmiles(output_smile)),
+                "num_h_donors": Lipinski.NumHDonors(Chem.MolFromSmiles(output_smile)),
+            }
+            for input_smile, output_smiles in zip(input_smiles, model_output)
+            for output_smile in output_smiles
+        ]
+        filtered_output_objects = list(
+            filter(
+                lambda x: x["log_p"] >= self.log_p_min
+                and x["log_p"] <= self.log_p_max
+                and x["qed"] >= self.qed_min
+                and x["qed"] <= self.qed_max,
+                output_objects,
+            )
+        )
 
         # return as list to keep sagemaker mms happy
         return [
             json.dumps(
                 {
                     "output_objects": output_objects,
-                    "filtered_output_objects": filtered_output_objects
+                    "filtered_output_objects": filtered_output_objects,
                 }
             )
         ]

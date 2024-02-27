@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 def index_select_ND(source, dim, index):
     index_size = index.size()
     suffix_dim = source.size()[1:]

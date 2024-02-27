@@ -40,7 +40,7 @@ class Chemprop(object):
                         features_scaler,
                         unused_scaler_1,
                         unused_scaler_2,
-                        unused_scaler_3
+                        unused_scaler_3,
                     ) = load_scalers(fname)
                     self.scalers.append(scaler)
                     self.features_scalers.append(features_scaler)

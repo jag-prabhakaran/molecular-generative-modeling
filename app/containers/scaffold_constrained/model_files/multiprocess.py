@@ -14,6 +14,3 @@ while True:
         score = 0.0
     sys.stdout.write(" ".join([smile, str(score), "\n"]))
     sys.stdout.flush()
-
-
-

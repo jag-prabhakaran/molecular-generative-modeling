@@ -547,7 +547,7 @@ class HierMPNDecoder(nn.Module):
                         inter_label = list(zip(inter_label, attach_points))
                         if graph_batch.try_add_mol(bid, ismiles, inter_label):
                             # print('Added molecule:',ismiles, inter_label)
-                            
+
                             new_atoms, new_bonds, attached = graph_batch.add_mol(
                                 bid, ismiles, inter_label, nth_child
                             )

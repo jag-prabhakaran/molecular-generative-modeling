@@ -30,7 +30,6 @@ def fragment_process(data):
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--min_frequency", type=int, default=100)
     parser.add_argument("--ncpu", type=int, default=1)

@@ -1,7 +1,8 @@
 import numpy as np
 import os
 
-class VizardLog():
+
+class VizardLog:
     def __init__(self, log_dir):
         self.log_dir = log_dir
         if not os.path.exists(log_dir):
@@ -21,16 +22,16 @@ class VizardLog():
             self.last_logged[name] = 1
             self.log_every[name] = log_every
             if overwrite:
-                self.overwrite[name] = 'w'
+                self.overwrite[name] = "w"
             else:
-                self.overwrite[name] = 'a'
+                self.overwrite[name] = "a"
 
         if self.last_logged[name] == self.log_every[name]:
             out_f = os.path.join(self.log_dir, name)
-            if dtype=="text":
+            if dtype == "text":
                 with open(out_f, self.overwrite[name]) as f:
                     f.write(data)
-            elif dtype=="array":
+            elif dtype == "array":
                 np.save(out_f, data)
-            elif dtype=="hist":
+            elif dtype == "hist":
                 np.save(out_f, np.histogram(data, density=True, bins=50))

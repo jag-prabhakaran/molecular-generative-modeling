@@ -6,8 +6,9 @@ import rdkit.Chem.QED as QED
 import networkx as nx
 import sascorer
 
+
 def similarity(a, b):
-    if a is None or b is None: 
+    if a is None or b is None:
         return 0.0
     amol = Chem.MolFromSmiles(a)
     bmol = Chem.MolFromSmiles(b)
@@ -16,20 +17,25 @@ def similarity(a, b):
 
     fp1 = AllChem.GetMorganFingerprintAsBitVect(amol, 2, nBits=2048, useChirality=False)
     fp2 = AllChem.GetMorganFingerprintAsBitVect(bmol, 2, nBits=2048, useChirality=False)
-    return DataStructs.TanimotoSimilarity(fp1, fp2) 
+    return DataStructs.TanimotoSimilarity(fp1, fp2)
 
 
 def qed(s):
-    if s is None: return 0.0
+    if s is None:
+        return 0.0
     mol = Chem.MolFromSmiles(s)
-    if mol is None: return 0.0
+    if mol is None:
+        return 0.0
     return QED.qed(mol)
+
 
 # Modified from https://github.com/bowenliu16/rl_graph_generation
 def penalized_logp(s):
-    if s is None: return -100.0
+    if s is None:
+        return -100.0
     mol = Chem.MolFromSmiles(s)
-    if mol is None: return -100.0
+    if mol is None:
+        return -100.0
 
     logP_mean = 2.4570953396190123
     logP_std = 1.434324401111988
@@ -58,27 +64,39 @@ def penalized_logp(s):
     normalized_cycle = (cycle_score - cycle_mean) / cycle_std
     return normalized_log_p + normalized_SA + normalized_cycle
 
+
 def smiles2D(s):
     mol = Chem.MolFromSmiles(s)
     return Chem.MolToSmiles(mol)
 
+
 def validity(s):
-    m = Chem.MolFromSmiles(smi,sanitize=False)
+    m = Chem.MolFromSmiles(smi, sanitize=False)
     if m is None:
-        print('invalid SMILES')
+        print("invalid SMILES")
         return 0
-        
+
     else:
         try:
             Chem.SanitizeMol(m)
         except:
-            print('invalid chemistry')
+            print("invalid chemistry")
             return 0
     return 1
+
 
 def molecular_weight(s):
     mol_wt = Descriptors.MolWt(Chem.MolFromSmiles(s))
     return mol_wt
-    
+
+
 if __name__ == "__main__":
-    print(round(penalized_logp('ClC1=CC=C2C(C=C(C(C)=O)C(C(NC3=CC(NC(NC4=CC(C5=C(C)C=CC=C5)=CC=C4)=O)=CC=C3)=O)=C2)=C1'), 2), 5.30)
+    print(
+        round(
+            penalized_logp(
+                "ClC1=CC=C2C(C=C(C(C)=O)C(C(NC3=CC(NC(NC4=CC(C5=C(C)C=CC=C5)=CC=C4)=O)=CC=C3)=O)=C2)=C1"
+            ),
+            2,
+        ),
+        5.30,
+    )

@@ -72,7 +72,7 @@ class MolEnumRootDataset(Dataset):
             return None
 
 
-class MolPairDataset(Dataset): 
+class MolPairDataset(Dataset):
     def __init__(self, data, vocab, avocab, batch_size):
         self.batches = [
             data[i : i + batch_size] for i in range(0, len(data), batch_size)
@@ -119,4 +119,4 @@ class DataFolder(object):
             del batches
             gc.collect()
             # except:
-            #     print("Didn't work",fn,"\n")  
+            #     print("Didn't work",fn,"\n")

@@ -35,11 +35,21 @@ class ModelHandler(object):
         self.initialized = True
         self.num_molecules = 50
         model_dir = context.system_properties.get("model_dir")
-        voc = Vocabulary(init_from_file=os.path.join(model_dir, "data/DistributionLearningBenchmark/Voc"))
+        voc = Vocabulary(
+            init_from_file=os.path.join(
+                model_dir, "data/DistributionLearningBenchmark/Voc"
+            )
+        )
         self.model = scaffold_constrained_RNN(voc)
-        self.model.rnn.load_state_dict(torch.load(os.path.join(model_dir, "data/DistributionLearningBenchmark/Prior_ChEMBL_randomized.ckpt"), map_location=lambda storage, loc: storage))
-
-
+        self.model.rnn.load_state_dict(
+            torch.load(
+                os.path.join(
+                    model_dir,
+                    "data/DistributionLearningBenchmark/Prior_ChEMBL_randomized.ckpt",
+                ),
+                map_location=lambda storage, loc: storage,
+            )
+        )
 
     def preprocess(self, request):
         """
@@ -47,7 +57,7 @@ class ModelHandler(object):
         :param request: JSON string of request payload.
         :return: list of preprocessed model input
         """
-        request = json.loads(request[0]['body'])
+        request = json.loads(request[0]["body"])
         self.scaffold_smile = request["scaffold_smile"]
         self.num_molecules = request["num_molecules"]
         self.log_p_min = request["log_p_min"]
@@ -60,7 +70,9 @@ class ModelHandler(object):
         Internal inference method
         :return:
         """
-        seqs, agent_likelihood, entropy = self.model.sample(pattern=self.scaffold_smile, batch_size=self.num_molecules)
+        seqs, agent_likelihood, entropy = self.model.sample(
+            pattern=self.scaffold_smile, batch_size=self.num_molecules
+        )
         return seqs
 
     def postprocess(self, model_output):
@@ -82,14 +94,23 @@ class ModelHandler(object):
                 "qed": QED.qed(mol),
                 "mol_weight": descriptors.ExactMolWt(mol),
                 "num_h_donors": Lipinski.NumHDonors(mol),
-            } for mol in mols if mol is not None
+            }
+            for mol in mols
+            if mol is not None
         ]
-        filtered_mol_smiles = list(filter(lambda x: x["logP"] >= self.log_p_min and x["logP"] <= self.log_p_max and x["qed"] >= self.qed_min and x["qed"] <= self.qed_max, mol_smiles))
+        filtered_mol_smiles = list(
+            filter(
+                lambda x: x["logP"] >= self.log_p_min
+                and x["logP"] <= self.log_p_max
+                and x["qed"] >= self.qed_min
+                and x["qed"] <= self.qed_max,
+                mol_smiles,
+            )
+        )
         # return as list to keep sagemaker mms happy
-        return [json.dumps({
-            "smiles": mol_smiles,
-            "filtered_smiles": filtered_mol_smiles
-        })]
+        return [
+            json.dumps({"smiles": mol_smiles, "filtered_smiles": filtered_mol_smiles})
+        ]
 
     def ping(self):
         """

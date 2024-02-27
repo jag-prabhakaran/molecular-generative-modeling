@@ -10,12 +10,15 @@ def _start_mms():
     # environment variable below if desired.
     # os.environ['SAGEMAKER_MODEL_SERVER_WORKERS'] = '2'
     print("Starting MMS -> running ", sagemaker_model_handler.__file__)
-    model_server.start_model_server(handler_service=sagemaker_model_handler.__file__ + ":handle")
+    model_server.start_model_server(
+        handler_service=sagemaker_model_handler.__file__ + ":handle"
+    )
 
 
 def main():
     _start_mms()
     # prevent docker exit
     subprocess.call(["tail", "-f", "/dev/null"])
+
 
 main()

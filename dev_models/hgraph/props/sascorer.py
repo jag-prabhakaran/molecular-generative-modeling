@@ -77,7 +77,7 @@ def calculateScore(m):
         if len(x) > 8:
             nMacrocycles += 1
 
-    sizePenalty = nAtoms ** 1.005 - nAtoms
+    sizePenalty = nAtoms**1.005 - nAtoms
     stereoPenalty = math.log10(nChiralCenters + 1)
     spiroPenalty = math.log10(nSpiro + 1)
     bridgePenalty = math.log10(nBridgeheads + 1)

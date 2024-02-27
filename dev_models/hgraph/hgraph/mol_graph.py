@@ -9,7 +9,6 @@ add = lambda x, y: x + y if type(x) is int else (x[0] + y, x[1] + y)
 
 
 class MolGraph(object):
-
     BOND_LIST = [
         Chem.rdchem.BondType.SINGLE,
         Chem.rdchem.BondType.DOUBLE,

@@ -10,7 +10,6 @@ add_none = lambda x, y: None if x is None else x + y
 
 
 class MolGraph(object):
-
     BOND_LIST = [
         Chem.rdchem.BondType.SINGLE,
         Chem.rdchem.BondType.DOUBLE,

@@ -14,11 +14,10 @@ from collections import Counter
 from functools import partial
 
 
-
 def get_mol(smiles_or_mol):
-    '''
+    """
     Loads SMILES/molecule into RDKit's object
-    '''
+    """
     if isinstance(smiles_or_mol, str):
         if len(smiles_or_mol) == 0:
             return None
@@ -31,6 +30,7 @@ def get_mol(smiles_or_mol):
             return None
         return mol
     return smiles_or_mol
+
 
 def get_n_rings(mol):
     """
@@ -47,6 +47,7 @@ def fragmenter(mol):
     fgs_smi = Chem.MolToSmiles(fgs).split(".")
     return fgs_smi
 
+
 def compute_scaffold(mol, min_rings=2):
     mol = get_mol(mol)
     try:
@@ -55,13 +56,14 @@ def compute_scaffold(mol, min_rings=2):
         return None
     n_rings = get_n_rings(scaffold)
     scaffold_smiles = Chem.MolToSmiles(scaffold)
-    if scaffold_smiles == '' or n_rings < min_rings:
+    if scaffold_smiles == "" or n_rings < min_rings:
         return None
     return scaffold_smiles
 
-def average_agg_tanimoto(stock_vecs, gen_vecs,
-                         batch_size=5000, agg='max',
-                         device='cpu', p=1):
+
+def average_agg_tanimoto(
+    stock_vecs, gen_vecs, batch_size=5000, agg="max", device="cpu", p=1
+):
     """
     For each molecule in gen_vecs finds closest molecule in stock_vecs.
     Returns average tanimoto score for between these molecules
@@ -72,31 +74,36 @@ def average_agg_tanimoto(stock_vecs, gen_vecs,
         agg: max or mean
         p: power for averaging: (mean x^p)^(1/p)
     """
-    assert agg in ['max', 'mean'], "Can aggregate only max or mean"
+    assert agg in ["max", "mean"], "Can aggregate only max or mean"
     agg_tanimoto = np.zeros(len(gen_vecs))
     total = np.zeros(len(gen_vecs))
     for j in range(0, stock_vecs.shape[0], batch_size):
-        x_stock = torch.tensor(stock_vecs[j:j + batch_size]).to(device).float()
+        x_stock = torch.tensor(stock_vecs[j : j + batch_size]).to(device).float()
         for i in range(0, gen_vecs.shape[0], batch_size):
-            y_gen = torch.tensor(gen_vecs[i:i + batch_size]).to(device).float()
+            y_gen = torch.tensor(gen_vecs[i : i + batch_size]).to(device).float()
             y_gen = y_gen.transpose(0, 1)
             tp = torch.mm(x_stock, y_gen)
-            jac = (tp / (x_stock.sum(1, keepdim=True) +
-                         y_gen.sum(0, keepdim=True) - tp)).cpu().numpy()
+            jac = (
+                (tp / (x_stock.sum(1, keepdim=True) + y_gen.sum(0, keepdim=True) - tp))
+                .cpu()
+                .numpy()
+            )
             jac[np.isnan(jac)] = 1
             if p != 1:
                 jac = jac**p
-            if agg == 'max':
-                agg_tanimoto[i:i + y_gen.shape[1]] = np.maximum(
-                    agg_tanimoto[i:i + y_gen.shape[1]], jac.max(0))
-            elif agg == 'mean':
-                agg_tanimoto[i:i + y_gen.shape[1]] += jac.sum(0)
-                total[i:i + y_gen.shape[1]] += jac.shape[0]
-    if agg == 'mean':
+            if agg == "max":
+                agg_tanimoto[i : i + y_gen.shape[1]] = np.maximum(
+                    agg_tanimoto[i : i + y_gen.shape[1]], jac.max(0)
+                )
+            elif agg == "mean":
+                agg_tanimoto[i : i + y_gen.shape[1]] += jac.sum(0)
+                total[i : i + y_gen.shape[1]] += jac.shape[0]
+    if agg == "mean":
         agg_tanimoto /= total
     if p != 1:
-        agg_tanimoto = (agg_tanimoto)**(1/p)
+        agg_tanimoto = (agg_tanimoto) ** (1 / p)
     return np.mean(agg_tanimoto)
+
 
 def cos_similarity(ref_counts, gen_counts):
     """
@@ -113,8 +120,16 @@ def cos_similarity(ref_counts, gen_counts):
     gen_vec = np.array([gen_counts.get(k, 0) for k in keys])
     return 1 - cos_distance(ref_vec, gen_vec)
 
-def fingerprint(smiles_or_mol, fp_type='maccs', dtype=None, morgan__r=2,
-                morgan__n=1024, *args, **kwargs):
+
+def fingerprint(
+    smiles_or_mol,
+    fp_type="maccs",
+    dtype=None,
+    morgan__r=2,
+    morgan__n=1024,
+    *args,
+    **kwargs
+):
     """
     Generates fingerprint for SMILES
     If smiles is invalid, returns None
@@ -129,26 +144,29 @@ def fingerprint(smiles_or_mol, fp_type='maccs', dtype=None, morgan__r=2,
     molecule = get_mol(smiles_or_mol, *args, **kwargs)
     if molecule is None:
         return None
-    if fp_type == 'maccs':
+    if fp_type == "maccs":
         keys = MACCSkeys.GenMACCSKeys(molecule)
         keys = np.array(keys.GetOnBits())
-        fingerprint = np.zeros(166, dtype='uint8')
+        fingerprint = np.zeros(166, dtype="uint8")
         if len(keys) != 0:
             fingerprint[keys - 1] = 1  # We drop 0-th key that is always zero
-    elif fp_type == 'morgan':
-        fingerprint = np.asarray(Morgan(molecule, morgan__r, nBits=morgan__n),
-                                 dtype='uint8')
+    elif fp_type == "morgan":
+        fingerprint = np.asarray(
+            Morgan(molecule, morgan__r, nBits=morgan__n), dtype="uint8"
+        )
     else:
         raise ValueError("Unknown fingerprint type {}".format(fp_type))
     if dtype is not None:
         fingerprint = fingerprint.astype(dtype)
     return fingerprint
-                  
-def fingerprints(mols,fp_type):
+
+
+def fingerprints(mols, fp_type):
     fingerprints = []
     for mol in mols:
-        fingerprints.append(fingerprint(mol,fp_type))
+        fingerprints.append(fingerprint(mol, fp_type))
     return fingerprints
+
 
 def compute_scaffolds(mols):
     scaffolds = []
@@ -156,12 +174,14 @@ def compute_scaffolds(mols):
         scaffolds.append(compute_scaffold(mol))
     return scaffolds
 
+
 def compute_fragments(mols):
     fragments = []
     for mol in mols:
         fragments.append(fragmenter(mol))
     return fragments
-  
+
+
 # def compute_scaffolds(mol_list, n_jobs=1, min_rings=2):
 #     """
 #     Extracts a scafold from a molecule in a form of a canonic SMILES
@@ -172,42 +192,52 @@ def compute_fragments(mols):
 #         scaffolds.pop(None)
 #     return scaffolds
 
-class SNNMetric():
+
+class SNNMetric:
     """
     Computes average max similarities of gen SMILES to ref SMILES
     """
 
-    def __init__(self, fp_type='morgan', **kwargs):
+    def __init__(self, fp_type="morgan", **kwargs):
         self.fp_type = fp_type
         super().__init__(**kwargs)
 
     def precalc(self, mols):
-        return {'fps': fingerprints(mols,
-                                    fp_type=self.fp_type)}
+        return {"fps": fingerprints(mols, fp_type=self.fp_type)}
 
     def metric(self, pref, pgen):
-        return average_agg_tanimoto(pref['fps'], pgen['fps'],
-                                    device=self.device)
+        return average_agg_tanimoto(pref["fps"], pgen["fps"], device=self.device)
 
-class FragMetric():
+
+class FragMetric:
     def precalc(self, mols):
-        return {'frag': compute_fragments(mols)}
+        return {"frag": compute_fragments(mols)}
 
     def metric(self, pref, pgen):
-        return cos_similarity(pref['frag'], pgen['frag'])
+        return cos_similarity(pref["frag"], pgen["frag"])
 
-class ScafMetric():
+
+class ScafMetric:
     def precalc(self, mols):
-        return {'scaf': compute_scaffolds(mols)}
+        return {"scaf": compute_scaffolds(mols)}
 
     def metric(self, pref, pgen):
-        return cos_similarity(pref['scaf'], pgen['scaf'])
-    
-def get_all_metrics(gen, k=None, n_jobs=1,
-                    device='cpu', batch_size=512, pool=None,
-                    test=None, test_scaffolds=None,
-                    ptest=None, ptest_scaffolds=None,
-                    train=None):
+        return cos_similarity(pref["scaf"], pgen["scaf"])
+
+
+def get_all_metrics(
+    gen,
+    k=None,
+    n_jobs=1,
+    device="cpu",
+    batch_size=512,
+    pool=None,
+    test=None,
+    test_scaffolds=None,
+    ptest=None,
+    ptest_scaffolds=None,
+    train=None,
+):
     """
     Computes all available metrics between test (scaffold test)
     and generated sets of SMILES.
@@ -250,10 +280,10 @@ def get_all_metrics(gen, k=None, n_jobs=1,
     if test is None:
         if ptest is not None:
             raise ValueError(
-                "You cannot specify custom test "
-                "statistics for default test set")
-        test = get_dataset('test')
-        ptest = get_statistics('test')
+                "You cannot specify custom test " "statistics for default test set"
+            )
+        test = get_dataset("test")
+        ptest = get_statistics("test")
 
     # if test_scaffolds is None:
     #     if ptest_scaffolds is not None:
@@ -263,7 +293,7 @@ def get_all_metrics(gen, k=None, n_jobs=1,
     #     test_scaffolds = get_dataset('test_scaffolds')
     #     ptest_scaffolds = get_statistics('test_scaffolds')
 
-    train = train or get_dataset('train')
+    train = train or get_dataset("train")
 
     if k is None:
         k = [1000, 10000]
@@ -297,37 +327,34 @@ def get_all_metrics(gen, k=None, n_jobs=1,
     # mols = mapper(pool)(get_mol, gen)
     # kwargs = {'n_jobs': pool, 'device': device, 'batch_size': batch_size}
     # kwargs_fcd = {'n_jobs': n_jobs, 'device': device, 'batch_size': batch_size}
-    metrics['FCD/Test'] = FCDMetric(**kwargs_fcd)(gen=gen, pref=ptest['FCD'])
-    metrics['SNN/Test'] = SNNMetric(**kwargs)(gen=mols, pref=ptest['SNN'])
-    metrics['Frag/Test'] = FragMetric(**kwargs)(gen=mols, pref=ptest['Frag'])
-    metrics['Scaf/Test'] = ScafMetric(**kwargs)(gen=mols, pref=ptest['Scaf'])
+    metrics["FCD/Test"] = FCDMetric(**kwargs_fcd)(gen=gen, pref=ptest["FCD"])
+    metrics["SNN/Test"] = SNNMetric(**kwargs)(gen=mols, pref=ptest["SNN"])
+    metrics["Frag/Test"] = FragMetric(**kwargs)(gen=mols, pref=ptest["Frag"])
+    metrics["Scaf/Test"] = ScafMetric(**kwargs)(gen=mols, pref=ptest["Scaf"])
     if ptest_scaffolds is not None:
-        metrics['FCD/TestSF'] = FCDMetric(**kwargs_fcd)(
-            gen=gen, pref=ptest_scaffolds['FCD']
+        metrics["FCD/TestSF"] = FCDMetric(**kwargs_fcd)(
+            gen=gen, pref=ptest_scaffolds["FCD"]
         )
-        metrics['SNN/TestSF'] = SNNMetric(**kwargs)(
-            gen=mols, pref=ptest_scaffolds['SNN']
+        metrics["SNN/TestSF"] = SNNMetric(**kwargs)(
+            gen=mols, pref=ptest_scaffolds["SNN"]
         )
-        metrics['Frag/TestSF'] = FragMetric(**kwargs)(
-            gen=mols, pref=ptest_scaffolds['Frag']
+        metrics["Frag/TestSF"] = FragMetric(**kwargs)(
+            gen=mols, pref=ptest_scaffolds["Frag"]
         )
-        metrics['Scaf/TestSF'] = ScafMetric(**kwargs)(
-            gen=mols, pref=ptest_scaffolds['Scaf']
+        metrics["Scaf/TestSF"] = ScafMetric(**kwargs)(
+            gen=mols, pref=ptest_scaffolds["Scaf"]
         )
 
-    metrics['IntDiv'] = internal_diversity(mols, pool, device=device)
-    metrics['IntDiv2'] = internal_diversity(mols, pool, device=device, p=2)
-    metrics['Filters'] = fraction_passes_filters(mols, pool)
+    metrics["IntDiv"] = internal_diversity(mols, pool, device=device)
+    metrics["IntDiv2"] = internal_diversity(mols, pool, device=device, p=2)
+    metrics["Filters"] = fraction_passes_filters(mols, pool)
 
     # Properties
-    for name, func in [('logP', logP), ('SA', SA),
-                       ('QED', QED),
-                       ('weight', weight)]:
-        metrics[name] = WassersteinMetric(func, **kwargs)(
-            gen=mols, pref=ptest[name])
+    for name, func in [("logP", logP), ("SA", SA), ("QED", QED), ("weight", weight)]:
+        metrics[name] = WassersteinMetric(func, **kwargs)(gen=mols, pref=ptest[name])
 
     if train is not None:
-        metrics['Novelty'] = novelty(mols, train, pool)
+        metrics["Novelty"] = novelty(mols, train, pool)
     enable_rdkit_log()
     if close_pool:
         pool.close()

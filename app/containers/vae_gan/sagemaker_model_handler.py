@@ -10,7 +10,6 @@ from rdkit.Chem import Lipinski
 from generator import GraphWGAN, generator, discriminator, graph_to_molecule
 
 
-
 class ModelHandler(object):
     """
     A ModelHandler defines a model with loading and inference methods that
@@ -38,7 +37,7 @@ class ModelHandler(object):
         )
         self.model.built = True
         model_dir = context.system_properties.get("model_dir")
-        self.model.load_weights(os.path.join(model_dir, 'model_weights.h5'))
+        self.model.load_weights(os.path.join(model_dir, "model_weights.h5"))
 
     def preprocess(self, request):
         """
@@ -47,14 +46,13 @@ class ModelHandler(object):
         :return: list of preprocessed model input
         """
         print(request)
-        request = json.loads(request[0]['body'])
+        request = json.loads(request[0]["body"])
         print(request)
         self.num_molecules = request["num_molecules"]
         self.log_p_min = request["log_p_min"]
         self.log_p_max = request["log_p_max"]
         self.qed_max = request["qed_max"]
         self.qed_min = request["qed_min"]
-
 
     def inference(self):
         """
@@ -85,15 +83,22 @@ class ModelHandler(object):
                 "logP": Crippen.MolLogP(mol),
                 "qed": QED.default(mol),
                 "mol_weight": descriptors.ExactMolWt(mol),
-                "num_h_donors": Lipinski.NumHDonors(mol)
-            } for mol in model_output if mol is not None
+                "num_h_donors": Lipinski.NumHDonors(mol),
+            }
+            for mol in model_output
+            if mol is not None
         ]
-        filtered_smiles = list(filter(lambda x: x["logP"] >= self.log_p_min and x["logP"] <= self.log_p_max and x["qed"] >= self.qed_min and x["qed"] <= self.qed_max, smiles_list))
+        filtered_smiles = list(
+            filter(
+                lambda x: x["logP"] >= self.log_p_min
+                and x["logP"] <= self.log_p_max
+                and x["qed"] >= self.qed_min
+                and x["qed"] <= self.qed_max,
+                smiles_list,
+            )
+        )
         # return as list to keep sagemaker mms happy
-        return [json.dumps({
-            'smiles': smiles_list,
-            'filtered_smiles': filtered_smiles
-        })]
+        return [json.dumps({"smiles": smiles_list, "filtered_smiles": filtered_smiles})]
 
     def ping(self):
         """

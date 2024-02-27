@@ -87,7 +87,7 @@ def graph_to_molecule(graph):
     # Add bonds between atoms in molecule; based on the upper triangles
     # of the [symmetric] adjacency tensor
     (bonds_ij, atoms_i, atoms_j) = np.where(np.triu(adjacency) == 1)
-    for (bond_ij, atom_i, atom_j) in zip(bonds_ij, atoms_i, atoms_j):
+    for bond_ij, atom_i, atom_j in zip(bonds_ij, atoms_i, atoms_j):
         if atom_i == atom_j or bond_ij == BOND_DIM - 1:
             continue
         bond_type = bond_mapping[bond_ij]
@@ -102,8 +102,13 @@ def graph_to_molecule(graph):
 
     return molecule
 
+
 def GraphGenerator(
-    dense_units, dropout_rate, latent_dim, adjacency_shape, feature_shape,
+    dense_units,
+    dropout_rate,
+    latent_dim,
+    adjacency_shape,
+    feature_shape,
 ):
     z = keras.layers.Input(shape=(LATENT_DIM,))
     # Propagate through one or more densely connected layers
@@ -134,6 +139,7 @@ generator = GraphGenerator(
     adjacency_shape=(BOND_DIM, NUM_ATOMS, NUM_ATOMS),
     feature_shape=(NUM_ATOMS, ATOM_DIM),
 )
+
 
 class RelationalGraphConvLayer(keras.layers.Layer):
     def __init__(
@@ -195,10 +201,10 @@ class RelationalGraphConvLayer(keras.layers.Layer):
         # Apply non-linear transformation
         return self.activation(x_reduced)
 
+
 def GraphDiscriminator(
     gconv_units, dense_units, dropout_rate, adjacency_shape, feature_shape
 ):
-
     adjacency = keras.layers.Input(shape=adjacency_shape)
     features = keras.layers.Input(shape=feature_shape)
 
@@ -232,6 +238,7 @@ discriminator = GraphDiscriminator(
     feature_shape=(NUM_ATOMS, ATOM_DIM),
 )
 
+
 class GraphWGAN(keras.Model):
     def __init__(
         self,
@@ -258,7 +265,6 @@ class GraphWGAN(keras.Model):
         self.metric_discriminator = keras.metrics.Mean(name="loss_dis")
 
     def train_step(self, inputs):
-
         if isinstance(inputs[0], tuple):
             inputs = inputs[0]
 

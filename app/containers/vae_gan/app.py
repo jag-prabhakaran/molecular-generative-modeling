@@ -12,7 +12,8 @@ new_model.compile(
     optimizer_discriminator=keras.optimizers.Adam(5e-4),
 )
 new_model.built = True
-savedModel = new_model.load_weights('model_weights.h5')
+savedModel = new_model.load_weights("model_weights.h5")
+
 
 def sample(generator, batch_size):
     z = tf.random.normal((batch_size, LATENT_DIM))
@@ -27,16 +28,21 @@ def sample(generator, batch_size):
         for i in range(batch_size)
     ]
 
-@app.route('/generate_molecules', methods=['POST'])
+
+@app.route("/generate_molecules", methods=["POST"])
 def generate_molecules():
     data = request.get_json()
     molecules = sample(new_model.generator, batch_size=48)
-    smiles_list = [[Chem.MolToSmiles(mol), Crippen.MolLogP(mol)] for mol in molecules if mol is not None]
-    filtered_smiles = [x for x in smiles_list if data["log_p_min"] <= x[1] <= data["log_p_max"]]
-    return jsonify({
-        'smiles': smiles_list,
-        'filtered_smiles': filtered_smiles
-    })
+    smiles_list = [
+        [Chem.MolToSmiles(mol), Crippen.MolLogP(mol)]
+        for mol in molecules
+        if mol is not None
+    ]
+    filtered_smiles = [
+        x for x in smiles_list if data["log_p_min"] <= x[1] <= data["log_p_max"]
+    ]
+    return jsonify({"smiles": smiles_list, "filtered_smiles": filtered_smiles})
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0")

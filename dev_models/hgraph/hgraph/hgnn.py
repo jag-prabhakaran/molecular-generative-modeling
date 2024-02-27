@@ -168,13 +168,12 @@ class HierVGNN(nn.Module):
             .expand(-1, graph_vecs.size(1), -1)
             .cuda()
         )
-        
+
         z_tree_vecs = self.W_tree(torch.cat([tree_vecs, z_tree], dim=-1))
         z_graph_vecs = self.W_graph(torch.cat([graph_vecs, z_graph], dim=-1))
         return self.decoder.decode(
             (root_vecs, z_tree_vecs, z_graph_vecs), greedy=greedy
         )
-    
 
     def rsample(self, z_vecs, W_mean, W_var):
         batch_size = z_vecs.size(0)
