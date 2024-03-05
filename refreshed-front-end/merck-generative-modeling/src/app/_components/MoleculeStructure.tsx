@@ -154,6 +154,11 @@ class MoleculeStructure extends Component<
     return !!mol;
   }
 
+  get_substruct_matches(qmol: Molecule) {
+    const targetAtoms : string = "";
+
+  }
+
   getMolDetails(mol: Molecule, qmol: Molecule) {
     if (this.isValidMol(mol) && this.isValidMol(qmol)) {
       const subStructHighlightDetails = JSON.parse(

@@ -25,6 +25,7 @@ const propertyNameToKey: { [key: string]: string } = {
 const vaeGan: React.FC = () => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [apiResponse, setApiResponse] = useState<any>(null);
+  const [inputSmile, setInputSmile] = useState<string>("");
 
   const handleGenerateMolecules = async () => {
     const payload = {
@@ -86,7 +87,9 @@ const vaeGan: React.FC = () => {
             </Button>
             {apiResponse && (
           <Box className="flex flex-row justify-center flex-wrap">
-            <StructureOutput response={apiResponse.filtered_smiles} />
+            <StructureOutput response={apiResponse.filtered_smiles}
+            isMultiObj={false}
+            input_smile={inputSmile} />
           </Box>
         )}
           </Box>

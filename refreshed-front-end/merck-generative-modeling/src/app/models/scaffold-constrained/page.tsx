@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { use, useState } from "react";
 import MerckNavbar from "../../_components/MerckNavbar";
 import {
   Box,
@@ -26,9 +26,13 @@ const propertyNameToKey: { [key: string]: string } = {
 const vaeGan: React.FC = () => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [apiResponse, setApiResponse] = useState<any>(null);
+  const [inputSmile, setInputSmile] = useState<string>("")
 
   const handleGenerateMolecules = async () => {
     const smile = await (window as any).ketcher.getSmiles();
+    setInputSmile(smile.replaceAll(":",""))
+
+    console.log(inputSmile)
     const payload = {
       log_p_min: parseFloat(propertyValues["logP Min"]),
       log_p_max: parseFloat(propertyValues["logP Max"]),
@@ -103,7 +107,9 @@ const vaeGan: React.FC = () => {
             </Button>
             {apiResponse && (
               <Box className="flex flex-row justify-center flex-wrap">
-                <StructureOutput response={apiResponse.filtered_smiles} />
+                <StructureOutput response={apiResponse.filtered_smiles}
+                isMultiObj={false}
+                input_smile={inputSmile} />
               </Box>
             )}
           </Box>
