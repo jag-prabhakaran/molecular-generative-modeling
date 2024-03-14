@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useState } from "react";
+import React, { use, useMemo, useState } from "react";
 import MerckNavbar from "../../_components/MerckNavbar";
 import {
   Box,
@@ -9,7 +9,7 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import KetcherComponent from "@/app/_components/KetcherComponent";
+import dynamic from "next/dynamic";
 import PropertyControls from "@/app/_components/PropertyControls";
 import StructureOutput from "@/app/_components/StructureOuptut";
 import MolRender from "@/app/_components/MolRender";
@@ -25,14 +25,21 @@ const propertyNameToKey: { [key: string]: string } = {
 
 const vaeGan: React.FC = () => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
+  const KetcherComponent = useMemo(
+    () =>
+      dynamic(() => import("@/app/_components/KetcherComponent"), {
+        ssr: false,
+      }),
+    []
+  );
   const [apiResponse, setApiResponse] = useState<any>(null);
-  const [inputSmile, setInputSmile] = useState<string>("")
+  const [inputSmile, setInputSmile] = useState<string>("");
 
   const handleGenerateMolecules = async () => {
     const smile = await (window as any).ketcher.getSmiles();
-    setInputSmile(smile.replaceAll(":",""))
+    setInputSmile(smile.replaceAll(":", ""));
 
-    console.log(inputSmile)
+    console.log(inputSmile);
     const payload = {
       log_p_min: parseFloat(propertyValues["logP Min"]),
       log_p_max: parseFloat(propertyValues["logP Max"]),
@@ -70,11 +77,11 @@ const vaeGan: React.FC = () => {
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [propertyValues, setPropertyValues] = useState({
-    'logP Min': '0',
-    'logP Max': '10',
-    'qed Min': '0',
-    'qed Max': '1',
-    'num molecules': '10'
+    "logP Min": "0",
+    "logP Max": "10",
+    "qed Min": "0",
+    "qed Max": "1",
+    "num molecules": "10",
   });
 
   const aspring = "CC(=O)OC1=CC=CC=C1C(=O)O";
@@ -99,7 +106,7 @@ const vaeGan: React.FC = () => {
             <KetcherComponent />
             <Box style={{ height: "20px" }}></Box>
             <Button
-              variant="contained"
+              variant="outlined"
               onClick={handleGenerateMolecules}
               style={{ marginBottom: "20px" }}
             >
@@ -107,9 +114,10 @@ const vaeGan: React.FC = () => {
             </Button>
             {apiResponse && (
               <Box className="flex flex-row justify-center flex-wrap">
-                <StructureOutput response={apiResponse.filtered_smiles}
-                isMultiObj={false}
-                input_smile={inputSmile} />
+                <StructureOutput
+                  response={apiResponse.filtered_smiles}
+                  isMultiObj={false}
+                />
               </Box>
             )}
           </Box>

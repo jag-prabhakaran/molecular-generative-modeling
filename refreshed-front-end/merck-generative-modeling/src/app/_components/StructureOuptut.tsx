@@ -18,8 +18,7 @@ import MolRender from "./MolRender";
 const StructureOutput: React.FC<{
   response: Molecule[];
   isMultiObj: boolean;
-  input_smile: string;
-}> = ({ response, isMultiObj, input_smile }) => {
+}> = ({ response, isMultiObj }) => {
   return (
     <>
       {isMultiObj
@@ -29,7 +28,7 @@ const StructureOutput: React.FC<{
                 key={molecule.output_smile}
                 molecule={molecule}
                 isMultiObj={true}
-                smile={input_smile}
+                smile={molecule.output_smile}
               />
             );
           })
@@ -39,7 +38,7 @@ const StructureOutput: React.FC<{
                 key={molecule.smile}
                 molecule={molecule}
                 isMultiObj={false}
-                smile={input_smile}
+                smile={molecule.smile}
               />
             );
           })}

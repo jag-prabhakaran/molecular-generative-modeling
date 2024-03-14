@@ -1,4 +1,16 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+
+import CopyPlugin from "copy-webpack-plugin";
+
+const nextConfig = {
+  webpack: (config) => {
+    config.plugins.push(
+      new CopyPlugin({
+        patterns: [{ from: "public", to: "" }],
+      })
+    );
+    return config;
+  },
+};
 
 export default nextConfig;

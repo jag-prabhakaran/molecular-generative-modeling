@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import MerckNavbar from "../../_components/MerckNavbar";
 import {
   Box,
@@ -9,12 +9,13 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import KetcherComponent from "@/app/_components/KetcherComponent";
 import PropertyControls from "@/app/_components/PropertyControls";
 import StructureOutput from "@/app/_components/StructureOuptut";
 import MolRender from "@/app/_components/MolRender";
 import initRDKitModule from "../../../../public/js/RDKit_minimal";
 import { RDKitLoader } from "@rdkit/rdkit";
+import "ketcher-react/dist/index.css";
+import dynamic from "next/dynamic";
 
 const propertyNameToKey: { [key: string]: string } = {
   "logP Min": "log_p_min",
@@ -25,6 +26,13 @@ const propertyNameToKey: { [key: string]: string } = {
 };
 
 const vaeGan: React.FC = () => {
+  const KetcherComponent = useMemo(
+    () =>
+      dynamic(() => import("@/app/_components/KetcherComponent"), {
+        ssr: false,
+      }),
+    []
+  );
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [apiResponse, setApiResponse] = useState<any>(null);
 
@@ -124,7 +132,7 @@ const vaeGan: React.FC = () => {
             <KetcherComponent />
             <Box style={{ height: "20px" }}></Box>
             <Button
-              variant="contained"
+              variant="outlined"
               onClick={handleGenerateMolecules}
               style={{ marginBottom: "20px" }}
             >

@@ -29,15 +29,18 @@ export class KetcherComponent extends React.Component {
   };
 
   render() {
-    return (
-      <Editor
-        staticResourcesUrl={""}
-        structServiceProvider={structServiceProvider}
-        onInit={this.handleOnInit}
-        errorHandler={(error: any) => console.error(error)}
-         
-      />
-    );
+    if (typeof window === "undefined") {
+      return <div>Server-side rendering is not supported</div>;
+    } else {
+      return (
+        <Editor
+          staticResourcesUrl={""}
+          structServiceProvider={structServiceProvider}
+          onInit={this.handleOnInit}
+          errorHandler={(error: any) => console.error(error)}
+        />
+      );
+    }
   }
 }
 
