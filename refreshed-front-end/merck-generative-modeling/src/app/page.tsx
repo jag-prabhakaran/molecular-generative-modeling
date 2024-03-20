@@ -13,19 +13,19 @@ export default function Home() {
         <ModelCard
           ModelTitle="VAE GAN"
           ModelDescription="This model is a simple GAN (Generative Adversarial Network) architecture that trains on small molecules (number of atoms < 9) and outputs new (small) molecules from noise."
-          ModelLink="./models/vae-gan/"
+          ModelLink="./models/vae-gan"
         />
         <ModelCard
           ModelTitle="SAMOA"
           ModelDescription="This model employs a SMILES-based Recurrent Neural Network (RNN) generative model to 
         achieve scaffold-constrained generation."
-          ModelLink="./models/scaffold-constrained/"
+          ModelLink="./models/scaffold-constrained"
         />
         <ModelCard
           ModelTitle="Graph Translation"
           ModelDescription="The model works by decomposing a molecule into a graph where each node corresponds to a specific substructure 
         of the molecule. This graph is then passed through a VAE (Variational Autoencoder) model to generate new molecules."
-          ModelLink="./models/multiobj-rationale/"
+          ModelLink="./models/multiobj-rationale"
         />
       </Box>
     </Box>
