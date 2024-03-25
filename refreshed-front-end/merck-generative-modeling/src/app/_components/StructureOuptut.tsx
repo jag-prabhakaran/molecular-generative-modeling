@@ -25,6 +25,7 @@ const StructureOutput: React.FC<{
 
   const rows = response.map((molecule, index) => ({
     id: index,
+    smile: molecule.smile,
     logP: round(molecule.logP),
     qed: round(molecule.qed),
     mol_weight: round(molecule.mol_weight),
@@ -40,13 +41,39 @@ const StructureOutput: React.FC<{
   }));
 
   const columns = [
-    { field: 'moleculeStructure', headerName: 'Structure', width: 300, renderCell: (params : GridRenderCellParams) => params.value },
-    { field: 'logP', headerName: 'LogP', width: 130 },
-    { field: 'qed', headerName: 'QED Score', width: 130 },
-    { field: 'mol_weight', headerName: 'Molecular Weight', width: 180 },
-    { field: 'num_h_donors', headerName: 'H Donors', width: 130 },
+    { field: 'moleculeStructure', 
+    headerName: 'Structure', 
+    width: 300,
+    disableExport: true, 
+    renderCell: (params : GridRenderCellParams) => params.value },
+
+    {field : 'smile',
+    headerName: 'SMILE',
+    width: 300,
+    hide: true},
+
+    { field: 'logP', 
+    headerName: 'LogP',
+    width: 130,
+    type : 'number' as const },
+
+    { field: 'qed',
+     headerName: 'QED Score',
+      width: 130, 
+     type: 'number' as const},
+
+    { field: 'mol_weight',
+     headerName: 'Molecular Weight',
+      width: 180, 
+     type: 'number' as const},
+
+    { field: 'num_h_donors',
+     headerName: 'H Donors',
+      width: 130 ,
+    type: 'number' as const},
   ];
 
+  const columnVisibilityModel = {smile: false}
   return (
     <>
       <div style={{ height: 400, width: '100%' }}>
@@ -54,7 +81,11 @@ const StructureOutput: React.FC<{
       columns={columns} 
       rowHeight={200} 
       checkboxSelection
-      slots={{toolbar: GridToolbar }}/>
+      slots={{toolbar: GridToolbar }}
+      slotProps={{ toolbar: { printOptions: { disableToolbarButton: true },
+                              csvOptions: {allColumns: true}} }}
+      columnVisibilityModel={columnVisibilityModel}
+      />
     </div>
     </>
   );
