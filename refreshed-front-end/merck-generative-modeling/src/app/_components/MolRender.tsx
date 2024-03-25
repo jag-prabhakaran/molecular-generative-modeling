@@ -14,12 +14,7 @@ import {
 import React, { HTMLAttributes, useState } from "react";
 import MoleculeStructure from "./MoleculeStructure";
 import Molecule from "./MoleculeType";
-import _ from "lodash";
-import PropTypes from "prop-types";
-import { RDKitLoader } from "@rdkit/rdkit";
-// import initRDKitModule from "@rdkit/rdkit";  BROKEN IMPORT
-import initRDKitModule from "../../../public/js/RDKit_minimal.js";
-import "../index.d.ts";
+
 
 const MolRender = (props: {
   key: string;
@@ -36,14 +31,14 @@ const MolRender = (props: {
         <MoleculeStructure
           structure={molecule.output_smile}
           id={molecule.smile}
-          // subStructure={props.smile}
+          subStructure={props.smile}
           svgMode={true}
         />
       ) : (
         <MoleculeStructure
           structure={molecule.smile}
           id={molecule.smile}
-          // subStructure={props.smile}
+          subStructure={props.smile}
           svgMode={true}
         />
       )}

@@ -117,6 +117,7 @@ const vaeGan: React.FC = () => {
                 <StructureOutput
                   response={apiResponse.filtered_smiles}
                   isMultiObj={false}
+                  input_smile={inputSmile}
                 />
               </Box>
             )}
