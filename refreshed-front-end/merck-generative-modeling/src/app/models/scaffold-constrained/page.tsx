@@ -23,6 +23,35 @@ const propertyNameToKey: { [key: string]: string } = {
   "qed Max": "qed_max",
 };
 
+const convertArrayToCSV = (molecules: any[]): string => {
+  const headers = ['smile string', 'logP', 'qed score', 'molecular weight', 'h donors'];
+  const dataKeys = ['smile', 'logP', 'qed', 'mol_weight', 'num_h_donors'];
+
+  const csvRows = [
+    headers.join(','), 
+    ...molecules.map(molecule =>
+      dataKeys.map(fieldName => {
+        const value = molecule[fieldName];
+        return typeof value === 'number' ? value.toFixed(3) : value;
+      }).join(','))
+  ];
+
+  return "data:text/csv;charset=utf-8," + csvRows.join('\n');
+};
+
+
+
+const downloadCSV = (csvContent: string, fileName: string = 'smiles.csv'): void => {
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement('a');
+  link.setAttribute('href', encodedUri);
+  link.setAttribute('download', fileName);
+  document.body.appendChild(link); 
+  link.click(); 
+  document.body.removeChild(link); 
+};
+
+
 const vaeGan: React.FC = () => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const KetcherComponent = useMemo(
@@ -112,6 +141,30 @@ const vaeGan: React.FC = () => {
             >
               Generate Molecules
             </Button>
+            {apiResponse && apiResponse.filtered_smiles && (
+              <>
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  if (apiResponse && apiResponse.filtered_smiles) {
+                    const csvContent = convertArrayToCSV(apiResponse.filtered_smiles);
+                    downloadCSV(csvContent, 'smile_string_info.csv');
+                  }
+                }}
+                style={{ marginBottom: "20px" }}
+              >
+                Download SMILES as CSV
+              </Button>
+
+                <Box className="flex flex-row justify-center flex-wrap">
+                  <StructureOutput
+                    response={apiResponse.filtered_smiles}
+                    isMultiObj={false}
+                    input_smile={inputSmile}
+                  />
+                </Box>
+              </>
+            )}
             {apiResponse && (
               <Box className="flex flex-row justify-center flex-wrap">
                 <StructureOutput
