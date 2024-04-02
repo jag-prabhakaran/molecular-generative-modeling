@@ -20,7 +20,7 @@ import dynamic from "next/dynamic";
 const propertyNameToKey: { [key: string]: string } = {
   "logP Min": "log_p_min",
   "logP Max": "log_p_max",
-  "num molecules": "num_molecules",
+  "upper bound": "num_molecules",
   "qed Min": "qed_min",
   "qed Max": "qed_max",
 };
@@ -67,12 +67,16 @@ const vaeGan: React.FC = () => {
     RDKitModule = RDKit;
   });
 
+  const [inputSmile, setInputSmile] = useState<string>("");
+
   const handleGenerateMolecules = async () => {
     let smile: string = await (window as any).ketcher.getSmiles();
     smile = RDKitModule.get_mol(smile).get_smiles();
     const regex = /([a-zA-z][0-9]*)(\*)/gm;
     smile = smile.replaceAll(regex, "[$1:1]");
     console.log(smile);
+    setInputSmile(smile)
+
     const payload = {
       log_p_min: parseFloat(propertyValues["logP Min"]),
       log_p_max: parseFloat(propertyValues["logP Max"]),
@@ -143,6 +147,7 @@ const vaeGan: React.FC = () => {
                 <StructureOutput
                   response={apiResponse.filtered_output_objects}
                   isMultiObj={true}
+                  input_smile={inputSmile}
                 />
               </Box>
             )}

@@ -43,7 +43,6 @@ const vaeGan: React.FC = () => {
       qed_min: parseFloat(propertyValues["qed Min"]),
       qed_max: parseFloat(propertyValues["qed Max"]),
     };
-    const smile = await (window as any).ketcher.getSmiles();
     //payload["scaffold_smile"] = smile;
     const data = {
       model_type: "vae-gan",
@@ -90,7 +89,6 @@ const vaeGan: React.FC = () => {
           <Box className="w-8/12 p-3" style={{ height: "50vh" }}>
             {" "}
             {/* Keep the existing height */}
-            <KetcherComponent />
             <Box style={{ height: "20px" }}></Box>
             <Button
               variant="outlined"

@@ -18,38 +18,11 @@ import Molecule from "@/app/_components/MoleculeType";
 const propertyNameToKey: { [key: string]: string } = {
   "logP Min": "log_p_min",
   "logP Max": "log_p_max",
-  "num molecules": "num_molecules",
+  "upper bound": "num_molecules",
   "qed Min": "qed_min",
   "qed Max": "qed_max",
 };
 
-const convertArrayToCSV = (molecules: any[]): string => {
-  const headers = ['smile string', 'logP', 'qed score', 'molecular weight', 'h donors'];
-  const dataKeys = ['smile', 'logP', 'qed', 'mol_weight', 'num_h_donors'];
-
-  const csvRows = [
-    headers.join(','), 
-    ...molecules.map(molecule =>
-      dataKeys.map(fieldName => {
-        const value = molecule[fieldName];
-        return typeof value === 'number' ? value.toFixed(3) : value;
-      }).join(','))
-  ];
-
-  return "data:text/csv;charset=utf-8," + csvRows.join('\n');
-};
-
-
-
-const downloadCSV = (csvContent: string, fileName: string = 'smiles.csv'): void => {
-  const encodedUri = encodeURI(csvContent);
-  const link = document.createElement('a');
-  link.setAttribute('href', encodedUri);
-  link.setAttribute('download', fileName);
-  document.body.appendChild(link); 
-  link.click(); 
-  document.body.removeChild(link); 
-};
 
 
 const vaeGan: React.FC = () => {
@@ -72,7 +45,7 @@ const vaeGan: React.FC = () => {
     const payload = {
       log_p_min: parseFloat(propertyValues["logP Min"]),
       log_p_max: parseFloat(propertyValues["logP Max"]),
-      num_molecules: parseFloat(propertyValues["num molecules"]),
+      num_molecules: parseFloat(propertyValues["upper bound"]),
       qed_min: parseFloat(propertyValues["qed Min"]),
       qed_max: parseFloat(propertyValues["qed Max"]),
       scaffold_smile: smile.replaceAll(":", ""),
@@ -110,7 +83,7 @@ const vaeGan: React.FC = () => {
     "logP Max": "10",
     "qed Min": "0",
     "qed Max": "1",
-    "num molecules": "10",
+    "upper bound": "10",
   });
 
   const aspring = "CC(=O)OC1=CC=CC=C1C(=O)O";
@@ -141,30 +114,7 @@ const vaeGan: React.FC = () => {
             >
               Generate Molecules
             </Button>
-            {apiResponse && apiResponse.filtered_smiles && (
-              <>
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  if (apiResponse && apiResponse.filtered_smiles) {
-                    const csvContent = convertArrayToCSV(apiResponse.filtered_smiles);
-                    downloadCSV(csvContent, 'smile_string_info.csv');
-                  }
-                }}
-                style={{ marginBottom: "20px" }}
-              >
-                Download SMILES as CSV
-              </Button>
 
-                <Box className="flex flex-row justify-center flex-wrap">
-                  <StructureOutput
-                    response={apiResponse.filtered_smiles}
-                    isMultiObj={false}
-                    input_smile={inputSmile}
-                  />
-                </Box>
-              </>
-            )}
             {apiResponse && (
               <Box className="flex flex-row justify-center flex-wrap">
                 <StructureOutput
