@@ -26,6 +26,7 @@ const propertyNameToKey: { [key: string]: string } = {
 const vaeGan: React.FC = () => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [apiResponse, setApiResponse] = useState<any>(null);
+  const [genID, setGenID] = useState<any>(null);
   const [inputSmile, setInputSmile] = useState<string>("");
 
   const KetcherComponent = useMemo(
@@ -37,29 +38,58 @@ const vaeGan: React.FC = () => {
   );
   const handleGenerateMolecules = async () => {
     const payload = {
-      log_p_min: parseFloat(propertyValues["logP Min"]),
-      log_p_max: parseFloat(propertyValues["logP Max"]),
+      input_smile: inputSmile,
+      logP: [parseFloat(propertyValues["logP Min"]), parseFloat(propertyValues["logP Max"])],
       num_molecules: parseFloat(propertyValues["num molecules"]),
-      qed_min: parseFloat(propertyValues["qed Min"]),
-      qed_max: parseFloat(propertyValues["qed Max"]),
+      qed: [parseFloat(propertyValues["qed Min"]), parseFloat(propertyValues["qed Max"])],
     };
     //payload["scaffold_smile"] = smile;
     const data = {
-      model_type: "vae-gan",
+      model_name: "vae-gan",
       payload,
     };
 
+    async function polling(pingData: any) {
+      const response = await fetch(
+        "https://p72f5klivypjgffz23p43th3fy0zweej.lambda-url.us-east-1.on.aws/",
+        {
+          method: "POST",
+          body: JSON.stringify(pingData)
+        }
+      );
+      const responseData = await response.json()
+
+      if (response.ok && responseData.error === "Model output not found. Try polling again after some time.") {
+        return polling(pingData);
+      } else if (response.ok) {
+        setApiResponse(responseData)
+        console.log(apiResponse)
+      } else {
+        console.log("error")
+      }
+    }
+
+
     console.log("Sending payload", data);
-    const response = await fetch(
-      "https://ezu74lbfo2imcxnmbblg3hkhqq0oqtxo.lambda-url.us-east-1.on.aws/",
+    const generationID = await fetch(
+      "https://3t777zoaqfoasdu76g335hq37a0uevko.lambda-url.us-east-1.on.aws/",
       {
         method: "POST",
         body: JSON.stringify(data),
       }
     );
-    setApiResponse(await response.json());
-    console.log(apiResponse);
+    const gen_json = await generationID.json()
+    setGenID(gen_json.generation_id)
+    console.log(genID);
+
+    const pingData = {
+      generation_id: genID
+    }
+
+    polling(pingData)
+    
   };
+    
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [propertyValues, setPropertyValues] = useState({
@@ -100,7 +130,7 @@ const vaeGan: React.FC = () => {
             {apiResponse && (
               <Box className="flex flex-row justify-center flex-wrap">
                 <StructureOutput
-                  response={apiResponse.filtered_smiles}
+                  response={apiResponse}
                   isMultiObj={false}
                   input_smile={inputSmile}
                 />

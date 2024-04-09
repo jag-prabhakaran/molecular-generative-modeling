@@ -17,26 +17,27 @@ import MolRender from "./MolRender";
 import MoleculeStructure from "./MoleculeStructure";
 
 const StructureOutput: React.FC<{
-  response: Molecule[];
+  response: any;
   isMultiObj: boolean;
   input_smile: string
 }> = ({ response, isMultiObj, input_smile }) => {
   const round = (value: number) => Math.round(value * 1000) / 1000;
 
-  const rows = response.map((molecule, index) => ({
+  const rows = Object.keys(response).map((key, index) => ({
     id: index,
-    logP: round(molecule.logP),
-    qed: round(molecule.qed),
-    mol_weight: round(molecule.mol_weight),
-    num_h_donors: round(molecule.num_h_donors),
+    smile: key,
+    logP: round(response.key.logP),
+    qed: round(response.key.qed),
+    mol_weight: round(response.key.mol_weight),
+    num_h_donors: round(response.key.num_h_donors),
     moleculeStructure: (
       <MoleculeStructure
-        structure={molecule.smile}
-        id={`mol_${index}`}
-        subStructure={input_smile}
-        svgMode={true}
-      />
-    ),
+      structure={key}
+      id={`mol_${index}`}
+      subStructure={input_smile}
+      svgMode={true}
+      ></MoleculeStructure>
+    )
   }));
 
   const columns = [
