@@ -3,6 +3,7 @@
 import CopyPlugin from "copy-webpack-plugin";
 
 const nextConfig = {
+  output: "export",
   webpack: (config) => {
     config.plugins.push(
       new CopyPlugin({

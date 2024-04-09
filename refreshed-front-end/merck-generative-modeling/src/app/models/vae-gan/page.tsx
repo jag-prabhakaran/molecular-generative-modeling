@@ -18,7 +18,7 @@ import dynamic from "next/dynamic";
 const propertyNameToKey: { [key: string]: string } = {
   "logP Min": "log_p_min",
   "logP Max": "log_p_max",
-  "num molecules": "num_molecules",
+  "upper bound": "num_molecules",
   "qed Min": "qed_min",
   "qed Max": "qed_max",
 };
@@ -28,6 +28,7 @@ const vaeGan: React.FC = () => {
   const [apiResponse, setApiResponse] = useState<any>(null);
   const [genID, setGenID] = useState<any>(null);
   const [inputSmile, setInputSmile] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const KetcherComponent = useMemo(
     () =>
@@ -36,60 +37,98 @@ const vaeGan: React.FC = () => {
       }),
     []
   );
+
+  const polling: any = async function (gen_id: any) {
+    const response = await fetch(
+      "https://p72f5klivypjgffz23p43th3fy0zweej.lambda-url.us-east-1.on.aws/",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          generation_id: gen_id,
+        }),
+      }
+    );
+    const responseData = await response.json();
+
+    if (
+      response.ok &&
+      responseData.error ===
+        "Model output not found. Try polling again after some time."
+    ) {
+      return {
+        error: false,
+        outputFound: false,
+        output: {},
+      };
+    } else if (response.ok) {
+      return {
+        error: false,
+        outputFound: true,
+        output: responseData,
+      };
+    } else {
+      return {
+        error: true,
+        outputFound: false,
+        output: {},
+      };
+    }
+  };
+
+  const queueFunc: any = async function (moleule_params: any) {
+    const res = await fetch(
+      "https://3t777zoaqfoasdu76g335hq37a0uevko.lambda-url.us-east-1.on.aws/",
+      {
+        method: "POST",
+        body: JSON.stringify(moleule_params),
+      }
+    );
+    return res.json();
+  };
+
   const handleGenerateMolecules = async () => {
     const payload = {
       input_smile: inputSmile,
-      logP: [parseFloat(propertyValues["logP Min"]), parseFloat(propertyValues["logP Max"])],
-      num_molecules: parseFloat(propertyValues["num molecules"]),
-      qed: [parseFloat(propertyValues["qed Min"]), parseFloat(propertyValues["qed Max"])],
+      logP: [
+        parseFloat(propertyValues["logP Min"]),
+        parseFloat(propertyValues["logP Max"]),
+      ],
+      num_molecules: parseFloat(propertyValues["upper bound"]),
+      qed: [
+        parseFloat(propertyValues["qed Min"]),
+        parseFloat(propertyValues["qed Max"]),
+      ],
     };
     //payload["scaffold_smile"] = smile;
-    const data = {
+    const APIBody = {
       model_name: "vae-gan",
       payload,
     };
 
-    async function polling(pingData: any) {
-      const response = await fetch(
-        "https://p72f5klivypjgffz23p43th3fy0zweej.lambda-url.us-east-1.on.aws/",
-        {
-          method: "POST",
-          body: JSON.stringify(pingData)
-        }
-      );
-      const responseData = await response.json()
+    const queued_gen_id_object = await queueFunc(APIBody);
+    setLoading(true);
+    const queued_gen_id = queued_gen_id_object.generation_id;
 
-      if (response.ok && responseData.error === "Model output not found. Try polling again after some time.") {
-        return polling(pingData);
-      } else if (response.ok) {
-        setApiResponse(responseData)
-        console.log(apiResponse)
+    var outputFound = false;
+
+    while (!outputFound) {
+      const poll_response = await polling(queued_gen_id);
+      outputFound = poll_response.outputFound;
+      if (poll_response.error) {
+        setLoading(false);
+        console.log("Something went wrong");
+        break;
       } else {
-        console.log("error")
+        if (poll_response.outputFound) {
+          setLoading(false);
+          setApiResponse(poll_response.output);
+          console.log(apiResponse);
+        } else {
+          await new Promise((resolve) => setTimeout(resolve, 1 * 1000));
+        }
       }
     }
-
-
-    console.log("Sending payload", data);
-    const generationID = await fetch(
-      "https://3t777zoaqfoasdu76g335hq37a0uevko.lambda-url.us-east-1.on.aws/",
-      {
-        method: "POST",
-        body: JSON.stringify(data),
-      }
-    );
-    const gen_json = await generationID.json()
-    setGenID(gen_json.generation_id)
-    console.log(genID);
-
-    const pingData = {
-      generation_id: genID
-    }
-
-    polling(pingData)
-    
   };
-    
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [propertyValues, setPropertyValues] = useState({
@@ -97,7 +136,7 @@ const vaeGan: React.FC = () => {
     "logP Max": "10",
     "qed Min": "0",
     "qed Max": "1",
-    "num molecules": "10",
+    "upper bound": "10",
   });
 
   const aspring = "CC(=O)OC1=CC=CC=C1C(=O)O";
