@@ -105,8 +105,10 @@ const vaeGan: React.FC = () => {
       payload,
     };
 
+    console.log(APIBody)
     const queued_gen_id_object = await queueFunc(APIBody);
     setLoading(true);
+    console.log("queing")
     const queued_gen_id = queued_gen_id_object.generation_id;
 
     var outputFound = false;

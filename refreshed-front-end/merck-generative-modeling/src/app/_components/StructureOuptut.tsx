@@ -51,13 +51,16 @@ const StructureOutput: React.FC<{
       headerName: "Structure",
       width: 300,
       renderCell: (params: GridRenderCellParams) => params.value,
+      disableExport: true
     },
+    { field: "smile", headerName: "SMILE", width: 130, hide: true},
     { field: "logP", headerName: "LogP", width: 130 },
     { field: "qed", headerName: "QED Score", width: 130 },
     { field: "mol_weight", headerName: "Molecular Weight", width: 180 },
     { field: "num_h_donors", headerName: "H Donors", width: 130 },
   ];
 
+  const columnVisibilityModel = {smile:false}
   return (
     <>
       <div style={{ height: 400, width: "100%" }}>
@@ -67,6 +70,9 @@ const StructureOutput: React.FC<{
           rowHeight={200}
           checkboxSelection
           slots={{ toolbar: GridToolbar }}
+          slotProps={{ toolbar: {printOptions: {disableToolbarButton: true},
+          csvOptions: {allColumns: true} }}}
+          columnVisibilityModel={columnVisibilityModel}
         />
       </div>
     </>
