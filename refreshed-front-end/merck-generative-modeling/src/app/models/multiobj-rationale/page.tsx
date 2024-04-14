@@ -8,6 +8,7 @@ import {
   CssBaseline,
   Toolbar,
   Typography,
+  TextField
 } from "@mui/material";
 import PropertyControls from "@/app/_components/PropertyControls";
 import StructureOutput from "@/app/_components/StructureOuptut";
@@ -35,6 +36,57 @@ const vaeGan: React.FC = () => {
   );
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [apiResponse, setApiResponse] = useState<any>(null);
+  const [genID, setGenID] = useState<any>(null);
+  const [inputSmile, setInputSmile] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const polling: any = async function (gen_id: any) {
+    const response = await fetch(
+      "https://p72f5klivypjgffz23p43th3fy0zweej.lambda-url.us-east-1.on.aws/",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          generation_id: gen_id,
+        }),
+      }
+    );
+    const responseData = await response.json();
+
+    if (
+      response.ok &&
+      responseData.error ===
+        "Model output not found. Try polling again after some time."
+    ) {
+      return {
+        error: false,
+        outputFound: false,
+        output: {},
+      };
+    } else if (response.ok) {
+      return {
+        error: false,
+        outputFound: true,
+        output: responseData,
+      };
+    } else {
+      return {
+        error: true,
+        outputFound: false,
+        output: {},
+      };
+    }
+  };
+
+  const queueFunc: any = async function (moleule_params: any) {
+    const res = await fetch(
+      "https://3t777zoaqfoasdu76g335hq37a0uevko.lambda-url.us-east-1.on.aws/",
+      {
+        method: "POST",
+        body: JSON.stringify(moleule_params),
+      }
+    );
+    return res.json();
+  };
 
   const initRDKit = (() => {
     let rdkitLoadingPromise: Promise<any> | undefined = undefined;
@@ -67,7 +119,6 @@ const vaeGan: React.FC = () => {
     RDKitModule = RDKit;
   });
 
-  const [inputSmile, setInputSmile] = useState<string>("");
 
   const handleGenerateMolecules = async () => {
     let smile: string = await (window as any).ketcher.getSmiles();
@@ -78,31 +129,42 @@ const vaeGan: React.FC = () => {
     setInputSmile(smile)
 
     const payload = {
-      log_p_min: parseFloat(propertyValues["logP Min"]),
-      log_p_max: parseFloat(propertyValues["logP Max"]),
-      num_molecules: parseFloat(propertyValues["num molecules"]),
-      qed_min: parseFloat(propertyValues["qed Min"]),
-      qed_max: parseFloat(propertyValues["qed Max"]),
+      logP: [parseFloat(propertyValues["logP Min"]),parseFloat(propertyValues["logP Max"]) ],
+      num_molecules: parseFloat(propertyValues["upper bound"]),
+      qed: [parseFloat(propertyValues["qed Min"]),parseFloat(propertyValues["qed Max"]) ],
       rationale: [smile],
     };
 
     //payload["scaffold_smile"] = smile;
-    const data = {
-      model_type: "multiobj-rationale",
+    const APIBody = {
+      model_name: "multiobj-rationale",
       payload,
     };
 
-    console.log("Sending payload", data);
-    const response = await fetch(
-      "https://ezu74lbfo2imcxnmbblg3hkhqq0oqtxo.lambda-url.us-east-1.on.aws/",
-      {
-        method: "POST",
-        body: JSON.stringify(data),
+    console.log(APIBody)
+    const queued_gen_id_object = await queueFunc(APIBody);
+    setLoading(true);
+    const queued_gen_id = queued_gen_id_object.generation_id;
+
+    var outputFound = false;
+
+    while (!outputFound) {
+      const poll_response = await polling(queued_gen_id);
+      outputFound = poll_response.outputFound;
+      if (poll_response.error) {
+        setLoading(false);
+        console.log("Something went wrong");
+        break;
+      } else {
+        if (poll_response.outputFound) {
+          setLoading(false);
+          setApiResponse(poll_response.output);
+          console.log(apiResponse);
+        } else {
+          await new Promise((resolve) => setTimeout(resolve, 1 * 1000));
+        }
       }
-    );
-    const res_json = await response.json();
-    setApiResponse(res_json);
-    console.log(apiResponse);
+    }
   };
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -111,7 +173,7 @@ const vaeGan: React.FC = () => {
     "logP Max": "10",
     "qed Min": "0",
     "qed Max": "1",
-    "num molecules": "10",
+    "upper bound": "10",
   });
 
   const aspring = "CC(=O)OC1=CC=CC=C1C(=O)O";
@@ -142,10 +204,11 @@ const vaeGan: React.FC = () => {
             >
               Generate Molecules
             </Button>
+
             {apiResponse && (
               <Box className="flex flex-row justify-center flex-wrap">
                 <StructureOutput
-                  response={apiResponse.filtered_output_objects}
+                  response={apiResponse}
                   isMultiObj={true}
                   input_smile={inputSmile}
                 />
