@@ -8,7 +8,7 @@ import {
   CssBaseline,
   Toolbar,
   Typography,
-  TextField
+  TextField,
 } from "@mui/material";
 import PropertyControls from "@/app/_components/PropertyControls";
 import StructureOutput from "@/app/_components/StructureOuptut";
@@ -119,29 +119,33 @@ const vaeGan: React.FC = () => {
     RDKitModule = RDKit;
   });
 
-
   const handleGenerateMolecules = async () => {
     let smile: string = await (window as any).ketcher.getSmiles();
     smile = RDKitModule.get_mol(smile).get_smiles();
     const regex = /([a-zA-z][0-9]*)(\*)/gm;
     smile = smile.replaceAll(regex, "[$1:1]");
     console.log(smile);
-    setInputSmile(smile)
+    setInputSmile(smile);
 
     const payload = {
-      logP: [parseFloat(propertyValues["logP Min"]),parseFloat(propertyValues["logP Max"]) ],
+      logP: [
+        parseFloat(propertyValues["logP Min"]),
+        parseFloat(propertyValues["logP Max"]),
+      ],
       num_molecules: parseFloat(propertyValues["upper bound"]),
-      qed: [parseFloat(propertyValues["qed Min"]),parseFloat(propertyValues["qed Max"]) ],
-      rationale: [smile],
+      qed: [
+        parseFloat(propertyValues["qed Min"]),
+        parseFloat(propertyValues["qed Max"]),
+      ],
+      input_smile: smile,
     };
 
-    //payload["scaffold_smile"] = smile;
     const APIBody = {
       model_name: "multiobj-rationale",
       payload,
     };
 
-    console.log(APIBody)
+    console.log(APIBody);
     const queued_gen_id_object = await queueFunc(APIBody);
     setLoading(true);
     const queued_gen_id = queued_gen_id_object.generation_id;
@@ -204,7 +208,6 @@ const vaeGan: React.FC = () => {
             >
               Generate Molecules
             </Button>
-
             {apiResponse && (
               <Box className="flex flex-row justify-center flex-wrap">
                 <StructureOutput
