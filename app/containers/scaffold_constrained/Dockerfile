@@ -1,7 +1,7 @@
 FROM mambaorg/micromamba
 
 # Create the environment:
-COPY --chown=$MAMBA_USER:$MAMBA_USER env.yml "/tmp/"
+COPY --chown=$MAMBA_USER:$MAMBA_USER ./scaffold_constrained/env.yml "/tmp/"
 RUN micromamba install -y -n base -f env.yml && \
     micromamba clean --all --yes
 USER root
@@ -17,13 +17,14 @@ ENV JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64/
 RUN export JAVA_HOME
 
 # Copy required files:
-COPY --chown=$MAMBA_USER:$MAMBA_USER data "/tmp/data/"
-COPY --chown=$MAMBA_USER:$MAMBA_USER model_files "/tmp/model_files/"
-COPY --chown=$MAMBA_USER:$MAMBA_USER data "/opt/ml/model/data/"
-COPY --chown=$MAMBA_USER:$MAMBA_USER model_files "/opt/ml/model/model_files/"
-COPY --chown=$MAMBA_USER:$MAMBA_USER entrypoint.py "/tmp/"
-COPY --chown=$MAMBA_USER:$MAMBA_USER sagemaker_model_handler.py "/tmp/"
-COPY scaffold-constrained.mar "/opt/ml/model/"
+COPY --chown=$MAMBA_USER:$MAMBA_USER ./scaffold_constrained/data "/tmp/data/"
+COPY --chown=$MAMBA_USER:$MAMBA_USER ./scaffold_constrained/model_files "/tmp/model_files/"
+COPY --chown=$MAMBA_USER:$MAMBA_USER ./scaffold_constrained/data "/opt/ml/model/data/"
+COPY --chown=$MAMBA_USER:$MAMBA_USER ./scaffold_constrained/model_files "/opt/ml/model/model_files/"
+COPY --chown=$MAMBA_USER:$MAMBA_USER ./scaffold_constrained/entrypoint.py "/tmp/"
+COPY --chown=$MAMBA_USER:$MAMBA_USER ./scaffold_constrained/sagemaker_model_handler.py "/tmp/"
+COPY --chown=$MAMBA_USER:$MAMBA_USER ./utils "/tmp/utils/"
+COPY --chown=$MAMBA_USER:$MAMBA_USER ./scaffold_constrained/scaffold-constrained.mar "/opt/ml/model/"
 
 # Run the application:
-ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "python", "/tmp/entrypoint.py"]
+ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "python", "-u", "/tmp/entrypoint.py"]

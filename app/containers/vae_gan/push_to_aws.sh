@@ -25,23 +25,23 @@ aws ecr get-login-password --region ${region}|docker login --username AWS --pass
 # Build the Docker image locally with the image name and then push it to ECR
 # with the full name.
 
-docker build -t ${algorithm_name} --platform linux/amd64  .
+docker build -t ${algorithm_name} --platform linux/amd64 -f Dockerfile ..
 docker tag ${algorithm_name} ${fullname}
 
 docker push ${fullname}
 
 aws sagemaker list-endpoints --output text | awk -v search="$endpoint_name" '$4 == search {exit 1}';
 if [ $? -eq 1 ]; then
-echo "Endpoint already exists. Deleting it..."
-aws sagemaker delete-endpoint --endpoint-name $endpoint_name
-aws sagemaker wait endpoint-deleted --endpoint-name $endpoint_name
-echo "Creating new endpoint..."
-aws sagemaker create-endpoint --endpoint-name $endpoint_name --endpoint-config-name $endpoint_name
-echo "Waiting for endpoint to be in service..."
-aws sagemaker wait endpoint-in-service --endpoint-name $endpoint_name
+    echo "Endpoint already exists. Deleting it..."
+    aws sagemaker delete-endpoint --endpoint-name $endpoint_name
+    aws sagemaker wait endpoint-deleted --endpoint-name $endpoint_name
+    echo "Creating new endpoint..."
+    aws sagemaker create-endpoint --endpoint-name $endpoint_name --endpoint-config-name $endpoint_name
+    echo "Waiting for endpoint to be in service..."
+    aws sagemaker wait endpoint-in-service --endpoint-name $endpoint_name
 else
-echo "Endpoint does not exist. Creating it..."
-aws sagemaker create-endpoint --endpoint-name $endpoint_name --endpoint-config-name $endpoint_name
-echo "Waiting for endpoint to be in service..."
-aws sagemaker wait endpoint-in-service --endpoint-name $endpoint_name
+    echo "Endpoint does not exist. Creating it..."
+    aws sagemaker create-endpoint --endpoint-name $endpoint_name --endpoint-config-name $endpoint_name
+    echo "Waiting for endpoint to be in service..."
+    aws sagemaker wait endpoint-in-service --endpoint-name $endpoint_name
 fi

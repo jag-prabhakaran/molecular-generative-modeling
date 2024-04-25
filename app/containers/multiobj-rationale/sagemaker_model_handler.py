@@ -8,6 +8,7 @@ from rdkit.Chem import Lipinski
 import torch
 import random
 import sys
+from utils import GenerationDetails
 
 from torch.utils.data import DataLoader
 
@@ -25,13 +26,9 @@ class ModelHandler(object):
     def __init__(self):
         self.initialized = False
         self.model = None
-        self.num_molecules = 48
-        self.log_p_min = 0
-        self.log_p_max = 5
         self.args = None
-        self.qed_max = 1
-        self.qed_min = 0
         self.rationale = []
+        self.gen_details = None
 
     def initialize(self, context):
         """
@@ -72,13 +69,12 @@ class ModelHandler(object):
         :return: list of preprocessed model input
         """
         request = json.loads(request[0]["body"])
-        self.rationale = request["rationale"]
-        self.num_molecules = request["num_molecules"]
-        self.args.num_decode = self.num_molecules
-        self.log_p_min = request["log_p_min"]
-        self.log_p_max = request["log_p_max"]
-        self.qed_max = request["qed_max"]
-        self.qed_min = request["qed_min"]
+        self.gen_details = GenerationDetails(
+            input_json=request,
+            filter_props=["logP", "qed", "mol_weight", "num_h_donors"],
+        )
+        self.args.num_decode = self.gen_details.generation_upper_bound
+        self.rationale.append(self.gen_details.input_smile)
 
     def inference(self):
         """
@@ -108,37 +104,11 @@ class ModelHandler(object):
         :return: Output after post-processing step
         """
         input_smiles = self.rationale
-        output_objects = [
-            {
-                "input_smile": input_smile,
-                "output_smile": output_smile,
-                "logP": Crippen.MolLogP(Chem.MolFromSmiles(output_smile)),
-                "qed": QED.default(Chem.MolFromSmiles(output_smile)),
-                "mol_weight": descriptors.ExactMolWt(Chem.MolFromSmiles(output_smile)),
-                "num_h_donors": Lipinski.NumHDonors(Chem.MolFromSmiles(output_smile)),
-            }
-            for input_smile, output_smiles in zip(input_smiles, model_output)
-            for output_smile in output_smiles
-        ]
-        filtered_output_objects = list(
-            filter(
-                lambda x: x["log_p"] >= self.log_p_min
-                and x["log_p"] <= self.log_p_max
-                and x["qed"] >= self.qed_min
-                and x["qed"] <= self.qed_max,
-                output_objects,
-            )
+        self.gen_details.filter_output(
+            [smile for smile_list in model_output for smile in smile_list]
         )
-
         # return as list to keep sagemaker mms happy
-        return [
-            json.dumps(
-                {
-                    "output_objects": output_objects,
-                    "filtered_output_objects": filtered_output_objects,
-                }
-            )
-        ]
+        return [self.gen_details.generate_json()]
 
     def ping(self):
         """

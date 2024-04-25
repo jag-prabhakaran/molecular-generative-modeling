@@ -9,6 +9,7 @@ from model_files.scaffold_constrained_model import scaffold_constrained_RNN
 from model_files.data_structs import Vocabulary
 import torch
 from model_files.utils import seq_to_smiles
+from utils import GenerationDetails
 
 
 class ModelHandler(object):
@@ -20,11 +21,7 @@ class ModelHandler(object):
     def __init__(self):
         self.initialized = False
         self.model = None
-        self.scaffold_smile = None
-        self.log_p_min = 0
-        self.log_p_max = 5
-        self.qed_max = 1
-        self.qed_min = 0
+        self.gen_details = None
 
     def initialize(self, context):
         """
@@ -33,7 +30,6 @@ class ModelHandler(object):
         :return:
         """
         self.initialized = True
-        self.num_molecules = 50
         model_dir = context.system_properties.get("model_dir")
         voc = Vocabulary(
             init_from_file=os.path.join(
@@ -58,12 +54,10 @@ class ModelHandler(object):
         :return: list of preprocessed model input
         """
         request = json.loads(request[0]["body"])
-        self.scaffold_smile = request["scaffold_smile"]
-        self.num_molecules = request["num_molecules"]
-        self.log_p_min = request["log_p_min"]
-        self.log_p_max = request["log_p_max"]
-        self.qed_max = request["qed_max"]
-        self.qed_min = request["qed_min"]
+        self.gen_details = GenerationDetails(
+            input_json=request,
+            filter_props=["logP", "qed", "mol_weight", "num_h_donors"],
+        )
 
     def inference(self):
         """
@@ -71,7 +65,8 @@ class ModelHandler(object):
         :return:
         """
         seqs, agent_likelihood, entropy = self.model.sample(
-            pattern=self.scaffold_smile, batch_size=self.num_molecules
+            pattern=self.gen_details.input_smile,
+            batch_size=self.gen_details.generation_upper_bound,
         )
         return seqs
 
@@ -82,35 +77,9 @@ class ModelHandler(object):
         :return: Output after post-processing step
         """
         smiles = seq_to_smiles(model_output, self.model.voc)
-        mols = []
-        for smile in smiles:
-            mol = Chem.MolFromSmiles(smile)
-            if mol:
-                mols.append(mol)
-        mol_smiles = [
-            {
-                "smile": Chem.MolToSmiles(mol),
-                "logP": Crippen.MolLogP(mol),
-                "qed": QED.qed(mol),
-                "mol_weight": descriptors.ExactMolWt(mol),
-                "num_h_donors": Lipinski.NumHDonors(mol),
-            }
-            for mol in mols
-            if mol is not None
-        ]
-        filtered_mol_smiles = list(
-            filter(
-                lambda x: x["logP"] >= self.log_p_min
-                and x["logP"] <= self.log_p_max
-                and x["qed"] >= self.qed_min
-                and x["qed"] <= self.qed_max,
-                mol_smiles,
-            )
-        )
+        self.gen_details.filter_output(smiles)
         # return as list to keep sagemaker mms happy
-        return [
-            json.dumps({"smiles": mol_smiles, "filtered_smiles": filtered_mol_smiles})
-        ]
+        return [self.gen_details.generate_json()]
 
     def ping(self):
         """

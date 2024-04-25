@@ -1,7 +1,7 @@
 import boto3
 import json
 
-runtime = boto3.client("runtime.sagemaker")
+runtime = boto3.client("runtime.sagemaker")  # type: ignore
 
 
 def lambda_handler(event, context):

@@ -1,5 +1,6 @@
 import os.path
 import json
+from utils import GenerationDetails
 from tensorflow import keras
 import tensorflow as tf
 from rdkit import Chem
@@ -19,9 +20,7 @@ class ModelHandler(object):
     def __init__(self):
         self.initialized = False
         self.model = None
-        self.num_molecules = 48
-        self.log_p_min = 0
-        self.log_p_max = 5
+        self.gen_details = None
 
     def initialize(self, context):
         """
@@ -45,21 +44,18 @@ class ModelHandler(object):
         :param request: JSON string of request payload.
         :return: list of preprocessed model input
         """
-        print(request)
         request = json.loads(request[0]["body"])
-        print(request)
-        self.num_molecules = request["num_molecules"]
-        self.log_p_min = request["log_p_min"]
-        self.log_p_max = request["log_p_max"]
-        self.qed_max = request["qed_max"]
-        self.qed_min = request["qed_min"]
+        self.gen_details = GenerationDetails(
+            input_json=request,
+            filter_props=["logP", "qed", "mol_weight", "num_h_donors"],
+        )
 
     def inference(self):
         """
         Internal inference method
         :return:
         """
-        z = tf.random.normal((self.num_molecules, 64))
+        z = tf.random.normal((self.gen_details.generation_upper_bound, 64))
         graph = self.model.generator.predict(z)
         adjacency = tf.argmax(graph[0], axis=1)
         adjacency = tf.one_hot(adjacency, depth=4, axis=1)
@@ -68,7 +64,7 @@ class ModelHandler(object):
         features = tf.one_hot(features, depth=5, axis=2)
         return [
             graph_to_molecule([adjacency[i].numpy(), features[i].numpy()])
-            for i in range(self.num_molecules)
+            for i in range(self.gen_details.generation_upper_bound)
         ]
 
     def postprocess(self, model_output):
@@ -77,28 +73,12 @@ class ModelHandler(object):
         :param model_output: Output from the inference method
         :return: Output after post-processing step
         """
-        smiles_list = [
-            {
-                "smile": Chem.MolToSmiles(mol),
-                "logP": Crippen.MolLogP(mol),
-                "qed": QED.default(mol),
-                "mol_weight": descriptors.ExactMolWt(mol),
-                "num_h_donors": Lipinski.NumHDonors(mol),
-            }
-            for mol in model_output
-            if mol is not None
+        model_output = [
+            Chem.MolToSmiles(mol) for mol in model_output if mol is not None
         ]
-        filtered_smiles = list(
-            filter(
-                lambda x: x["logP"] >= self.log_p_min
-                and x["logP"] <= self.log_p_max
-                and x["qed"] >= self.qed_min
-                and x["qed"] <= self.qed_max,
-                smiles_list,
-            )
-        )
+        self.gen_details.filter_output(model_output)
         # return as list to keep sagemaker mms happy
-        return [json.dumps({"smiles": smiles_list, "filtered_smiles": filtered_smiles})]
+        return [self.gen_details.generate_json()]
 
     def ping(self):
         """

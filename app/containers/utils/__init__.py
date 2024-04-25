@@ -1,0 +1,1 @@
+from .GenerationDetails import GenerationDetails
